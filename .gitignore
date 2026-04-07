@@ -3,8 +3,11 @@ dist/
 out/
 .env
 .env.*
+.claude/
+.omc/
+CLAUDE.md
 CLAUDE.local.md
-.claude/settings.local.json
+.mcp.json
 electron-store/
 *.db
 *.db-shm

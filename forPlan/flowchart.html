@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UpdateNote — Flow Chart</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+:root {
+  --color-primary: #5E7F5F;
+  --color-primary-hover: #4F6E50;
+  --color-primary-active: #3F5A40;
+  --color-secondary: #D6E2A3;
+  --color-secondary-hover: #C7D48F;
+  --color-secondary-active: #B5C27A;
+  --color-info: #6FA3A0;
+  --color-info-hover: #5F9390;
+  --color-info-active: #4E7F7C;
+  --color-alert: #B85C5C;
+  --color-alert-hover: #A14E4E;
+  --color-alert-active: #8A4141;
+  --color-warning: #C9A86A;
+  --color-warning-hover: #B6975C;
+  --color-warning-active: #A3834E;
+  --color-black: #1C1F1D;
+  --color-white: #F4F6F2;
+  --color-bg-primary: #F4F6F2;
+  --color-bg-secondary: #E8EFE6;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #1C1F1D;
+  --color-text-secondary: #5F6B63;
+  --color-text-muted: #8A948C;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: 'Pretendard', sans-serif;
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  display: flex; align-items: center;
+  padding: 20px 48px;
+  border-bottom: 1px solid var(--color-bg-secondary);
+  background: var(--color-surface);
+}
+.brand {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: .5px;
+}
+.brand span { color: var(--color-text-muted); font-weight: 400; font-size: 13px; margin-left: 10px; }
+
+/* MAIN */
+main { padding: 48px; max-width: 1200px; margin: 0 auto; }
+
+.flow-header { margin-bottom: 48px; }
+.flow-eyebrow {
+  font-family: 'Pretendard', sans-serif; font-size: 10px;
+  letter-spacing: 3px; color: var(--color-primary);
+  margin-bottom: 8px;
+}
+.flow-title {
+  font-family: 'Pretendard', sans-serif; font-size: 36px; font-weight: 700;
+  color: var(--color-text-primary); margin-bottom: 6px;
+}
+.flow-desc { font-size: 14px; color: var(--color-text-muted); }
+
+/* FLOW GRID */
+.flow-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+.col-label {
+  font-family: 'Pretendard', sans-serif; font-size: 9px;
+  letter-spacing: 3px; color: var(--color-text-muted);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-bg-secondary);
+  margin-bottom: 20px;
+}
+.chain { display: flex; flex-direction: column; }
+
+/* NODES */
+.node {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px;
+  padding: 14px 18px;
+  position: relative;
+  transition: all .2s;
+}
+.node:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+.node.type-trigger { border-left: 3px solid var(--color-warning); }
+.node.type-process { border-left: 3px solid var(--color-info); }
+.node.type-ai      { border-left: 3px solid var(--color-primary); }
+.node.type-store   { border-left: 3px solid var(--color-secondary-active); }
+.node.type-ui      { border-left: 3px solid var(--color-primary); }
+.node.type-notify  { border-left: 3px solid var(--color-warning); }
+.node.type-publish { border-left: 3px solid var(--color-primary); }
+
+.node-tag {
+  font-family: 'Pretendard', sans-serif; font-size: 9px;
+  font-weight: 500; letter-spacing: 2px; margin-bottom: 4px;
+}
+.type-trigger .node-tag { color: var(--color-warning); }
+.type-process .node-tag { color: var(--color-info); }
+.type-ai .node-tag      { color: var(--color-primary); }
+.type-store .node-tag   { color: var(--color-secondary-active); }
+.type-ui .node-tag      { color: var(--color-primary); }
+.type-notify .node-tag  { color: var(--color-warning); }
+.type-publish .node-tag { color: var(--color-primary); }
+
+.node-title { font-size: 13px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 3px; }
+.node-desc  { font-size: 11px; color: var(--color-text-secondary); line-height: 1.6; }
+
+.arrow {
+  display: flex; align-items: flex-start; padding: 5px 0 5px 20px;
+}
+.arrow-line {
+  width: 1px; height: 24px;
+  background: var(--color-bg-secondary);
+  position: relative;
+}
+.arrow-line::after {
+  content: '▾'; position: absolute; bottom: -8px; left: -5px;
+  font-size: 11px; color: var(--color-text-muted);
+}
+
+/* PUBLISH 3-SPLIT */
+.pub3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.pub-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: 8px; padding: 12px; text-align: center;
+  transition: all .2s;
+}
+.pub-item:hover { background: var(--color-bg-secondary); }
+.pub-icon { font-size: 18px; margin-bottom: 4px; }
+.pub-name { font-size: 11px; font-weight: 600; color: var(--color-primary); }
+.pub-desc { font-size: 10px; color: var(--color-text-muted); margin-top: 2px; }
+
+/* INFRA */
+.infra {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  padding-top: 28px; border-top: 1px solid var(--color-bg-secondary);
+}
+.infra-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px; padding: 14px;
+  transition: all .2s;
+}
+.infra-card:hover { border-color: var(--color-primary); }
+.infra-tag {
+  font-family: 'Pretendard', sans-serif; font-size: 9px;
+  letter-spacing: 2px; color: var(--color-info); margin-bottom: 5px;
+}
+.infra-title { font-size: 12px; font-weight: 600; color: var(--color-text-primary); }
+.infra-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">UpdateNote <span>Flow Chart v4</span></div>
+</header>
+
+<main>
+  <div class="flow-header">
+    <div class="flow-eyebrow">// SYSTEM ARCHITECTURE</div>
+    <div class="flow-title">전체 흐름도</div>
+    <div class="flow-desc">다중 레포 관리 · 레포별 완전 독립 보안 규칙 · Electron + React 데스크톱 앱</div>
+  </div>
+
+  <div class="flow-grid">
+
+    <!-- LEFT: BACKEND PIPELINE -->
+    <div>
+      <div class="col-label">// DETECTION & AI PIPELINE</div>
+      <div class="chain">
+
+        <div class="node type-trigger">
+          <div class="node-tag">TRIGGER</div>
+          <div class="node-title">앱 실행 / 수동 체크</div>
+          <div class="node-desc">앱 시작 시 등록된 모든 레포 자동 체크<br>"지금 확인" 버튼으로 수동 실행</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="node type-process">
+          <div class="node-tag">PROCESS</div>
+          <div class="node-title">레포별 새 커밋 감지</div>
+          <div class="node-desc">마지막 확인 SHA 이후 변경사항 탐색<br>GitLab/GitHub API 또는 로컬 git 폴더 (레포별 선택)</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="node type-process">
+          <div class="node-tag">PROCESS</div>
+          <div class="node-title">git diff 추출</div>
+          <div class="node-desc">레포별 독립 보안 제외 규칙 적용<br>경로 패턴 & 확장자 패턴 (전역 규칙 없음)</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="node type-notify">
+          <div class="node-tag">NOTIFY</div>
+          <div class="node-title">토스트 알림</div>
+          <div class="node-desc">새 배포 감지 시 앱 내 토스트 알림<br>레포 이름 + 커밋 정보 함께 표시</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="node type-ai">
+          <div class="node-tag">AI</div>
+          <div class="node-title">AI 요약 생성</div>
+          <div class="node-desc">Claude / GPT (전역 설정, 교체 가능)<br>요약 언어는 레포별 설정 (한국어 / 영어 / 둘 다)<br>버그수정 / 기능추가 / UI변경 / 성능개선 분류</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="node type-store">
+          <div class="node-tag">STORE</div>
+          <div class="node-title">SQLite 로컬 저장</div>
+          <div class="node-desc">레포별 초안 기록 영구 저장<br>레포별 설정값 + 전역 설정값 저장</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: DASHBOARD -->
+    <div>
+      <div class="col-label">// REVIEW & PUBLISH</div>
+      <div class="chain">
+
+        <div class="node type-ui">
+          <div class="node-tag">UI</div>
+          <div class="node-title">레포 선택</div>
+          <div class="node-desc">사이드바 레포 목록에서 선택<br>새 커밋 있는 레포에 알림 뱃지 표시</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="node type-ui">
+          <div class="node-tag">UI</div>
+          <div class="node-title">초안 확인 & 수정</div>
+          <div class="node-desc">해당 레포의 최신 초안 표시<br>한/영 탭 전환 · 직접 편집 가능</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="node type-ui">
+          <div class="node-tag">HISTORY</div>
+          <div class="node-title">과거 기록 열람</div>
+          <div class="node-desc">레포별 초안 히스토리 목록<br>과거 버전 재열람 및 재발행 가능</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="node type-publish">
+          <div class="node-tag">PUBLISH</div>
+          <div class="node-title">발행 포맷 선택 후 발행</div>
+          <div class="node-desc">3가지 포맷 중 선택</div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <div class="pub3">
+          <div class="pub-item">
+            <div class="pub-icon">📮</div>
+            <div class="pub-name">Naver Works</div>
+            <div class="pub-desc">HTML 클립보드 복사</div>
+          </div>
+          <div class="pub-item">
+            <div class="pub-icon">📄</div>
+            <div class="pub-name">Markdown</div>
+            <div class="pub-desc">.md 파일 다운로드</div>
+          </div>
+          <div class="pub-item">
+            <div class="pub-icon">📋</div>
+            <div class="pub-name">Plain Text</div>
+            <div class="pub-desc">클립보드 복사</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- INFRA -->
+  <div class="infra">
+    <div class="infra-card">
+      <div class="infra-tag">// FRAMEWORK</div>
+      <div class="infra-title">Electron + React</div>
+      <div class="infra-desc">Windows .exe / macOS .dmg 각각 빌드<br>electron-builder</div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-tag">// LOCAL DB</div>
+      <div class="infra-title">SQLite</div>
+      <div class="infra-desc">레포별 초안 기록<br>전역 + 레포별 설정값</div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-tag">// DIFF SOURCE</div>
+      <div class="infra-title">API 또는 로컬 git</div>
+      <div class="infra-desc">레포별 독립 선택<br>보안 규칙도 레포별 독립</div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-tag">// AI</div>
+      <div class="infra-title">Claude / GPT</div>
+      <div class="infra-desc">전역 설정<br>추상화 레이어로 교체 가능</div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

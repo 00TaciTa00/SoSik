@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UpdateNote — Interactive Mockup</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root {
+  --color-primary: #5E7F5F;
+  --color-primary-hover: #4F6E50;
+  --color-primary-active: #3F5A40;
+  --color-secondary: #D6E2A3;
+  --color-secondary-hover: #C7D48F;
+  --color-secondary-active: #B5C27A;
+  --color-info: #6FA3A0;
+  --color-info-hover: #5F9390;
+  --color-info-active: #4E7F7C;
+  --color-alert: #B85C5C;
+  --color-alert-hover: #A14E4E;
+  --color-alert-active: #8A4141;
+  --color-warning: #C9A86A;
+  --color-warning-hover: #B6975C;
+  --color-warning-active: #A3834E;
+  --color-black: #1C1F1D;
+  --color-white: #F4F6F2;
+  --color-bg-primary: #F4F6F2;
+  --color-bg-secondary: #E8EFE6;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #1C1F1D;
+  --color-text-secondary: #5F6B63;
+  --color-text-muted: #8A948C;
+}
+[data-theme="dark"] {
+  --color-primary: #7FAF7C;
+  --color-primary-hover: #6E9D6B;
+  --color-primary-active: #5C8959;
+  --color-secondary: #A8C96B;
+  --color-secondary-hover: #97B95C;
+  --color-secondary-active: #86A64E;
+  --color-info: #7FB7B4;
+  --color-info-hover: #6FA6A3;
+  --color-info-active: #5E9390;
+  --color-alert: #D17878;
+  --color-alert-hover: #BE6767;
+  --color-alert-active: #A95757;
+  --color-warning: #D6B77A;
+  --color-warning-hover: #C4A66C;
+  --color-warning-active: #B2945E;
+  --color-black: #0F1210;
+  --color-white: #E6EBE4;
+  --color-bg-primary: #1A1F1C;
+  --color-bg-secondary: #222824;
+  --color-surface: #2A312C;
+  --color-text-primary: #E6EBE4;
+  --color-text-secondary: #B7C2BA;
+  --color-text-muted: #7F8A83;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: 'Pretendard', sans-serif;
+  height: 100vh; overflow: hidden;
+  transition: background .25s, color .25s;
+}
+
+/* ===== APP CHROME ===== */
+.chrome {
+  display: grid;
+  grid-template-rows: 38px 1fr;
+  height: 100vh;
+  border: 1px solid var(--color-bg-secondary);
+  transition: border-color .25s;
+}
+.titlebar {
+  background: var(--color-bg-secondary);
+  display: flex; align-items: center;
+  padding: 0 14px; gap: 8px;
+  border-bottom: 1px solid var(--color-bg-secondary);
+  transition: background .25s;
+  user-select: none;
+}
+.tdot { width: 11px; height: 11px; border-radius: 50%; }
+.tdot.r { background: #ff5f57; }
+.tdot.y { background: #febc2e; }
+.tdot.g { background: #28c840; }
+.ttitle {
+  font-family: 'Pretendard', sans-serif; font-size: 11px;
+  color: var(--color-text-muted); margin: 0 auto; letter-spacing: 1px;
+}
+.tright { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.tlng {
+  font-family: 'Pretendard', sans-serif; font-size: 9px;
+  padding: 2px 7px; border-radius: 3px;
+  border: 1px solid var(--color-bg-secondary);
+  color: var(--color-text-muted); background: transparent;
+  cursor: pointer; transition: all .15s;
+}
+.tlng.on { border-color: var(--color-primary); color: var(--color-primary); background: rgba(94,127,95,0.08); }
+.tthm {
+  width: 22px; height: 22px; border-radius: 4px;
+  border: 1px solid var(--color-bg-secondary);
+  background: transparent; cursor: pointer;
+  font-size: 12px; display: flex; align-items: center; justify-content: center;
+  color: var(--color-text-secondary); transition: all .15s;
+}
+.tthm:hover { border-color: var(--color-primary); }
+
+/* ===== MAIN LAYOUT ===== */
+.app-body {
+  display: grid;
+  grid-template-columns: 52px 190px 1fr;
+  overflow: hidden; height: 100%;
+}
+
+/* ===== ICON RAIL ===== */
+.rail {
+  background: var(--color-bg-secondary);
+  border-right: 1px solid rgba(0,0,0,0.06);
+  display: flex; flex-direction: column;
+  align-items: center; padding: 14px 0; gap: 6px;
+  transition: background .25s;
+}
+[data-theme="dark"] .rail { border-right-color: rgba(255,255,255,0.04); }
+.rail-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; transition: all .15s;
+  border: 1px solid transparent; color: var(--color-text-muted);
+  background: transparent; position: relative;
+}
+.rail-btn.on {
+  background: var(--color-surface);
+  border-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.rail-btn:hover:not(.on) { background: rgba(94,127,95,0.1); color: var(--color-primary); }
+.rail-sep { width: 22px; height: 1px; background: var(--color-bg-secondary); margin: 2px 0; }
+
+/* ===== REPO LIST ===== */
+.repo-panel {
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-bg-secondary);
+  display: flex; flex-direction: column;
+  overflow: hidden; transition: background .25s, border-color .25s;
+}
+.rp-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--color-bg-secondary);
+}
+.rp-lbl {
+  font-family: 'Pretendard', sans-serif; font-size: 9px;
+  letter-spacing: 2px; color: var(--color-text-muted);
+}
+.rp-add {
+  width: 20px; height: 20px; border-radius: 4px;
+  border: 1px solid var(--color-bg-secondary);
+  background: transparent; color: var(--color-text-muted);
+  cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.rp-add:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.repo-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.repo-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; cursor: pointer; transition: all .15s;
+  margin: 1px 6px; border-radius: 7px;
+  border: 1px solid transparent;
+}
+.repo-item.active {
+  background: rgba(94,127,95,0.1);
+  border-color: rgba(94,127,95,0.25);
+}
+.repo-item:hover:not(.active) { background: var(--color-bg-secondary); }
+.repo-ico {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+}
+.repo-ico.gl { background: rgba(201,168,106,0.15); border: 1px solid rgba(201,168,106,0.3); }
+.repo-ico.gh { background: rgba(111,163,160,0.15); border: 1px solid rgba(111,163,160,0.3); }
+.repo-info { flex: 1; min-width: 0; }
+.repo-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.repo-sub { font-family: 'Pretendard', sans-serif; font-size: 9px; color: var(--color-text-muted); margin-top: 1px; }
+.badge {
+  min-width: 17px; height: 17px; border-radius: 9px;
+  background: var(--color-warning); color: var(--color-black);
+  font-size: 9px; font-weight: 700; display: flex;
+  align-items: center; justify-content: center; padding: 0 4px;
+  flex-shrink: 0; font-family: 'Pretendard', sans-serif;
+}
+
+/* ===== MAIN AREA ===== */
+.main-area {
+  overflow-y: auto; overflow-x: hidden;
+  background: var(--color-bg-primary);
+  transition: background .25s;
+}
+
+/* ===== PAGES ===== */
+.page { display: none; padding: 24px 28px; }
+.page.active { display: flex; flex-direction: column; gap: 16px; }
+
+/* Page header */
+.page-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.page-title {
+  font-family: 'Pretendard', sans-serif; font-weight: 700;
+  font-size: 22px; color: var(--color-text-primary);
+}
+.page-meta {
+  display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap;
+  font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-muted);
+}
+.status-pill {
+  font-family: 'Pretendard', sans-serif; font-size: 10px;
+  padding: 4px 12px; border-radius: 20px;
+  border: 1px solid rgba(201,168,106,0.4);
+  color: var(--color-warning); background: rgba(201,168,106,0.1);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* Tags */
+.tag-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.tag {
+  font-family: 'Pretendard', sans-serif; font-size: 10px;
+  font-weight: 500; padding: 2px 8px; border-radius: 3px;
+}
+.tag-fix { background: rgba(184,92,92,0.1); color: var(--color-alert); border: 1px solid rgba(184,92,92,0.25); }
+.tag-feat { background: rgba(94,127,95,0.1); color: var(--color-primary); border: 1px solid rgba(94,127,95,0.25); }
+.tag-ui { background: rgba(111,163,160,0.1); color: var(--color-info); border: 1px solid rgba(111,163,160,0.25); }
+
+/* Draft card */
+.draft-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px; overflow: hidden;
+  transition: background .25s, border-color .25s;
+}
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid var(--color-bg-secondary);
+  background: var(--color-bg-secondary); transition: background .25s;
+}
+.card-lbl { font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-muted); }
+.tab-group { display: flex; gap: 3px; }
+.tab {
+  font-family: 'Pretendard', sans-serif; font-size: 10px;
+  padding: 3px 10px; border-radius: 4px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--color-text-muted); cursor: pointer; transition: all .15s;
+}
+.tab.on { background: var(--color-surface); border-color: var(--color-bg-secondary); color: var(--color-text-primary); }
+.tab:hover:not(.on) { color: var(--color-text-secondary); }
+.card-body { padding: 16px 18px; }
+.draft-title {
+  font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700;
+  margin-bottom: 8px; color: var(--color-text-primary);
+}
+.draft-intro { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px; line-height: 1.7; }
+.change-list { list-style: none; }
+.change-item {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid var(--color-bg-secondary);
+  font-size: 12px; color: var(--color-text-secondary); line-height: 1.6;
+}
+.change-item:last-child { border-bottom: none; }
+
+/* Diff view */
+.diff-view {
+  font-family: 'Pretendard', sans-serif; font-size: 11px;
+  background: var(--color-bg-primary); border-radius: 6px;
+  padding: 12px; line-height: 1.7; color: var(--color-text-secondary);
+  max-height: 200px; overflow-y: auto;
+}
+.diff-add { color: var(--color-primary); }
+.diff-del { color: var(--color-alert); }
+.diff-hdr { color: var(--color-info); }
+
+/* Publish bar */
+.pub-bar {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  transition: background .25s, border-color .25s;
+}
+.pub-lbl { font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-muted); }
+.pub-btn {
+  padding: 7px 13px; border-radius: 6px;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid; font-family: 'Pretendard', sans-serif;
+  transition: all .15s; display: flex; align-items: center; gap: 5px;
+}
+.pb-works { background: rgba(201,168,106,0.1); border-color: rgba(201,168,106,0.35); color: var(--color-warning); }
+.pb-works:hover { background: rgba(201,168,106,0.2); border-color: var(--color-warning); }
+.pb-md { background: rgba(111,163,160,0.1); border-color: rgba(111,163,160,0.35); color: var(--color-info); }
+.pb-md:hover { background: rgba(111,163,160,0.2); border-color: var(--color-info); }
+.pb-txt { background: rgba(94,127,95,0.1); border-color: rgba(94,127,95,0.3); color: var(--color-primary); }
+.pb-txt:hover { background: rgba(94,127,95,0.2); border-color: var(--color-primary); }
+.pb-go {
+  background: var(--color-primary); border-color: var(--color-primary);
+  color: var(--color-white); font-weight: 700; margin-left: auto;
+}
+.pb-go:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+.pb-go:active { background: var(--color-primary-active); }
+
+/* ===== HISTORY ===== */
+.hist-list { display: flex; flex-direction: column; gap: 8px; }
+.hist-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: all .15s;
+}
+.hist-item:hover { border-color: var(--color-primary); background: rgba(94,127,95,0.04); }
+.hist-ver { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 17px; min-width: 60px; color: var(--color-text-primary); }
+.hist-meta { flex: 1; }
+.hist-date { font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-muted); margin-bottom: 3px; }
+.hist-prev { font-size: 12px; color: var(--color-text-secondary); }
+.hist-arr { color: var(--color-text-muted); font-size: 16px; }
+
+/* ===== REPO SETTINGS ===== */
+.set-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.set-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px; padding: 16px;
+  transition: background .25s, border-color .25s;
+}
+.set-card-title {
+  font-family: 'Pretendard', sans-serif; font-size: 9px;
+  letter-spacing: 2px; color: var(--color-text-muted);
+  margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-bg-secondary);
+}
+.sf { margin-bottom: 10px; }
+.sl { display: block; font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-secondary); margin-bottom: 3px; }
+.si, .ss {
+  width: 100%; background: var(--color-bg-primary);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 5px; padding: 7px 10px;
+  font-size: 12px; color: var(--color-text-primary);
+  font-family: 'Pretendard', sans-serif; transition: all .25s;
+}
+.si:focus { outline: none; border-color: var(--color-primary); }
+.excl-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.etag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 7px; border-radius: 3px;
+  background: rgba(184,92,92,0.08);
+  border: 1px solid rgba(184,92,92,0.25);
+  font-size: 10px; font-family: 'Pretendard', sans-serif; color: var(--color-alert);
+}
+.etag-x { cursor: pointer; color: var(--color-text-muted); }
+.etag-x:hover { color: var(--color-alert); }
+.danger-btn {
+  width: 100%; padding: 8px; border-radius: 5px;
+  border: 1px solid rgba(184,92,92,0.3);
+  background: rgba(184,92,92,0.08); color: var(--color-alert);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: 'Pretendard', sans-serif; transition: all .15s;
+  margin-top: 8px;
+}
+.danger-btn:hover { background: rgba(184,92,92,0.15); border-color: var(--color-alert); }
+.save-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+.save-btn {
+  padding: 8px 22px; border-radius: 6px; font-size: 12px;
+  font-weight: 700; border: none;
+  background: var(--color-primary); color: var(--color-white);
+  cursor: pointer; font-family: 'Pretendard', sans-serif; transition: all .15s;
+}
+.save-btn:hover { background: var(--color-primary-hover); }
+
+/* ===== GLOBAL SETTINGS ===== */
+.gs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ===== ADD REPO ===== */
+.add-wrap { display: flex; align-items: center; justify-content: center; min-height: 500px; }
+.add-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 12px; padding: 32px; max-width: 440px; width: 100%;
+  transition: background .25s, border-color .25s;
+}
+.add-title { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 4px; color: var(--color-text-primary); }
+.add-sub { font-size: 12px; color: var(--color-text-muted); margin-bottom: 20px; }
+.opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.opt-btn {
+  padding: 10px; border-radius: 7px;
+  border: 1px solid var(--color-bg-secondary);
+  background: var(--color-bg-primary); cursor: pointer;
+  text-align: center; transition: all .15s;
+}
+.opt-btn.on { border-color: var(--color-primary); background: rgba(94,127,95,0.08); }
+.opt-btn:hover:not(.on) { border-color: var(--color-bg-secondary); background: var(--color-bg-secondary); }
+.opt-ic { font-size: 18px; margin-bottom: 3px; }
+.opt-nm { font-size: 12px; font-weight: 600; color: var(--color-text-primary); }
+.add-submit {
+  width: 100%; padding: 11px; border-radius: 7px;
+  font-size: 13px; font-weight: 700; border: none;
+  background: var(--color-primary); color: var(--color-white);
+  cursor: pointer; font-family: 'Pretendard', sans-serif;
+  transition: all .15s; margin-top: 6px;
+}
+.add-submit:hover { background: var(--color-primary-hover); }
+.add-submit:active { background: var(--color-primary-active); }
+
+/* ===== TOAST ===== */
+.toast-wrap {
+  position: fixed; top: 50px; right: 20px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 8px; padding: 12px 16px;
+  min-width: 260px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  font-size: 13px; color: var(--color-text-primary);
+  animation: slideIn .3s ease, fadeOut .3s ease 2.7s forwards;
+  pointer-events: auto;
+}
+.toast-title { font-weight: 600; margin-bottom: 2px; color: var(--color-primary); font-size: 12px; }
+@keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateX(20px); } }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  display: none; align-items: center; justify-content: center; z-index: 8888;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 12px; padding: 28px; max-width: 360px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.modal-title { font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.modal-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 20px; line-height: 1.6; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-cancel {
+  padding: 8px 18px; border-radius: 6px; font-size: 12px;
+  border: 1px solid var(--color-bg-secondary); background: transparent;
+  color: var(--color-text-secondary); cursor: pointer; transition: all .15s;
+}
+.modal-cancel:hover { background: var(--color-bg-secondary); }
+.modal-confirm {
+  padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 700;
+  border: none; background: var(--color-alert); color: #fff; cursor: pointer; transition: all .15s;
+}
+.modal-confirm:hover { background: var(--color-alert-hover); }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">레포지토리 삭제</div>
+    <div class="modal-desc" id="modalDesc">이 레포지토리와 관련된 모든 초안 기록 및 설정이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">취소</button>
+      <button class="modal-confirm" id="modalConfirm">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="chrome">
+  <div class="titlebar">
+    <div class="tdot r"></div><div class="tdot y"></div><div class="tdot g"></div>
+    <div class="ttitle" id="winTitle">UpdateNote</div>
+    <div class="tright">
+      <button class="tlng on" id="lngKo" onclick="setLang('ko')">KO</button>
+      <button class="tlng" id="lngEn" onclick="setLang('en')">EN</button>
+      <button class="tthm" onclick="toggleTheme()" id="thmBtn">🌙</button>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- RAIL -->
+    <div class="rail">
+      <button class="rail-btn on" id="rail-draft" onclick="switchRail('draft')" title="초안">📋</button>
+      <button class="rail-btn" id="rail-history" onclick="switchRail('history')" title="기록">🕐</button>
+      <div class="rail-sep"></div>
+      <button class="rail-btn" id="rail-settings" onclick="switchRail('settings')" title="레포 설정">⚙️</button>
+      <button class="rail-btn" id="rail-global" onclick="switchRail('global')" title="전역 설정">🔧</button>
+    </div>
+
+    <!-- REPO LIST -->
+    <div class="repo-panel">
+      <div class="rp-head">
+        <div class="rp-lbl">REPOS</div>
+        <button class="rp-add" onclick="switchRail('add')" title="레포 추가">+</button>
+      </div>
+      <div class="repo-list" id="repoList">
+        <div class="repo-item active" data-repo="shop" onclick="selectRepo(this,'shop')">
+          <div class="repo-ico gl">🦊</div>
+          <div class="repo-info">
+            <div class="repo-name">shop-frontend</div>
+            <div class="repo-sub">GitLab</div>
+          </div>
+          <div class="badge">1</div>
+        </div>
+        <div class="repo-item" data-repo="admin" onclick="selectRepo(this,'admin')">
+          <div class="repo-ico gh">🐙</div>
+          <div class="repo-info">
+            <div class="repo-name">admin-panel</div>
+            <div class="repo-sub">GitHub</div>
+          </div>
+          <div class="badge">2</div>
+        </div>
+        <div class="repo-item" data-repo="api" onclick="selectRepo(this,'api')">
+          <div class="repo-ico gl">🦊</div>
+          <div class="repo-info">
+            <div class="repo-name">api-server</div>
+            <div class="repo-sub">GitLab</div>
+          </div>
+        </div>
+        <div class="repo-item" data-repo="mobile" onclick="selectRepo(this,'mobile')">
+          <div class="repo-ico gh">🐙</div>
+          <div class="repo-info">
+            <div class="repo-name">mobile-app</div>
+            <div class="repo-sub">GitHub</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-area">
+
+      <!-- DRAFT PAGE -->
+      <div class="page active" id="page-draft">
+        <div class="page-hd">
+          <div>
+            <div class="page-title" id="draftTitle">shop-frontend / v2.4.1</div>
+            <div class="page-meta" id="draftMeta">
+              <span>📅 2026.04.03 14:32</span>
+              <span>🦊 GitLab</span>
+              <span>commit: a3f9e12</span>
+            </div>
+          </div>
+          <div class="status-pill">● 검토 대기중</div>
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-fix">버그수정 2</span>
+          <span class="tag tag-feat">기능추가 1</span>
+          <span class="tag tag-ui">UI변경 1</span>
+        </div>
+
+        <div class="draft-card">
+          <div class="card-head">
+            <div class="card-lbl">// DRAFT CONTENT</div>
+            <div class="tab-group">
+              <button class="tab on" onclick="switchTab(this,'ko')">한국어</button>
+              <button class="tab" onclick="switchTab(this,'en')">English</button>
+              <button class="tab" onclick="switchTab(this,'diff')">원본 diff</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="content-ko">
+              <div class="draft-title">🛠 v2.4.1 업데이트 안내</div>
+              <div class="draft-intro">안녕하세요! 서비스 이용에 불편을 드렸던 몇 가지 문제를 수정하고, 새로운 기능을 추가했습니다.</div>
+              <ul class="change-list">
+                <li class="change-item"><span class="tag tag-fix" style="flex-shrink:0;white-space:nowrap">버그수정</span><span>장바구니에 상품을 담을 때 간헐적으로 오류가 발생하던 문제를 해결했습니다.</span></li>
+                <li class="change-item"><span class="tag tag-fix" style="flex-shrink:0;white-space:nowrap">버그수정</span><span>모바일 환경에서 결제 버튼이 제대로 표시되지 않던 문제를 수정했습니다.</span></li>
+                <li class="change-item"><span class="tag tag-feat" style="flex-shrink:0;white-space:nowrap">기능추가</span><span>주문 내역 페이지에서 영수증을 PDF로 다운로드할 수 있게 되었습니다.</span></li>
+                <li class="change-item"><span class="tag tag-ui" style="flex-shrink:0;white-space:nowrap">UI변경</span><span>상품 목록 필터 메뉴 디자인이 더 보기 쉽게 개선되었습니다.</span></li>
+              </ul>
+            </div>
+            <div id="content-en" style="display:none">
+              <div class="draft-title">🛠 v2.4.1 Update Notice</div>
+              <div class="draft-intro">Hello! We fixed several issues that caused inconvenience and added a new feature.</div>
+              <ul class="change-list">
+                <li class="change-item"><span class="tag tag-fix" style="flex-shrink:0;white-space:nowrap">Bug Fix</span><span>Fixed an intermittent error that occurred when adding items to the cart.</span></li>
+                <li class="change-item"><span class="tag tag-fix" style="flex-shrink:0;white-space:nowrap">Bug Fix</span><span>Fixed the payment button not displaying correctly on mobile devices.</span></li>
+                <li class="change-item"><span class="tag tag-feat" style="flex-shrink:0;white-space:nowrap">New Feature</span><span>You can now download receipts as PDF from the order history page.</span></li>
+                <li class="change-item"><span class="tag tag-ui" style="flex-shrink:0;white-space:nowrap">UI Change</span><span>Improved the filter menu design on the product list page for better readability.</span></li>
+              </ul>
+            </div>
+            <div id="content-diff" style="display:none">
+              <div class="diff-view">
+<span class="diff-hdr">diff --git a/src/cart/CartService.ts b/src/cart/CartService.ts</span>
+<span class="diff-del">- async addItem(item: CartItem): Promise&lt;void&gt; {</span>
+<span class="diff-add">+ async addItem(item: CartItem): Promise&lt;CartResult&gt; {</span>
+<span class="diff-add">+   if (!this.validateItem(item)) throw new CartError('INVALID_ITEM');</span>
+    return this.repository.save(item);
+  }
+
+<span class="diff-hdr">diff --git a/src/payment/PaymentButton.tsx b/src/payment/PaymentButton.tsx</span>
+<span class="diff-del">- style={{ display: isDesktop ? 'block' : 'none' }}</span>
+<span class="diff-add">+ style={{ display: 'block', visibility: isDesktop ? 'visible' : 'hidden' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pub-bar">
+          <span class="pub-lbl">발행 포맷 :</span>
+          <button class="pub-btn pb-works" onclick="publishWorks()">📮 Naver Works 복사</button>
+          <button class="pub-btn pb-md" onclick="publishMd()">📄 Markdown 저장</button>
+          <button class="pub-btn pb-txt" onclick="publishTxt()">📋 텍스트 복사</button>
+          <button class="pub-btn pb-go" onclick="publishGo()">발행하기 →</button>
+        </div>
+      </div>
+
+      <!-- HISTORY PAGE -->
+      <div class="page" id="page-history">
+        <div class="page-title" id="histTitle" style="margin-bottom:16px">shop-frontend 기록</div>
+        <div class="hist-list">
+          <div class="hist-item" onclick="openHistory('v2.4.1')">
+            <div class="hist-ver">v2.4.1</div>
+            <div class="hist-meta">
+              <div class="hist-date">2026.04.03 14:32 · commit a3f9e12</div>
+              <div class="hist-prev">장바구니 오류 수정, 영수증 PDF 다운로드 추가...</div>
+            </div>
+            <div class="tag-row"><span class="tag tag-fix">버그수정 2</span><span class="tag tag-feat">기능추가 1</span></div>
+            <div class="hist-arr">›</div>
+          </div>
+          <div class="hist-item" onclick="openHistory('v2.4.0')">
+            <div class="hist-ver">v2.4.0</div>
+            <div class="hist-meta">
+              <div class="hist-date">2026.03.28 10:11 · commit b1c2d3e</div>
+              <div class="hist-prev">다크모드 지원, 알림 설정 추가...</div>
+            </div>
+            <div class="tag-row"><span class="tag tag-feat">기능추가 2</span><span class="tag tag-ui">UI변경 1</span></div>
+            <div class="hist-arr">›</div>
+          </div>
+          <div class="hist-item" onclick="openHistory('v2.3.9')">
+            <div class="hist-ver">v2.3.9</div>
+            <div class="hist-meta">
+              <div class="hist-date">2026.03.20 09:45 · commit f4e5d6c</div>
+              <div class="hist-prev">로그인 세션 만료 버그 수정...</div>
+            </div>
+            <div class="tag-row"><span class="tag tag-fix">버그수정 1</span></div>
+            <div class="hist-arr">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPO SETTINGS PAGE -->
+      <div class="page" id="page-settings">
+        <div class="page-title" id="setTitle" style="margin-bottom:16px">shop-frontend 설정</div>
+        <div class="set-grid">
+          <div class="set-card">
+            <div class="set-card-title">// 연동 정보</div>
+            <div class="sf"><label class="sl">플랫폼</label><select class="ss"><option>GitLab</option><option>GitHub</option></select></div>
+            <div class="sf"><label class="sl">diff 소스</label><select class="ss"><option>API 방식</option><option>로컬 git 폴더</option></select></div>
+            <div class="sf"><label class="sl">저장소 URL</label><input class="si" value="https://gitlab.com/org/shop-frontend"></div>
+            <div class="sf"><label class="sl">ACCESS TOKEN</label><input class="si" type="password" value="glpat-xxxx"></div>
+            <div class="sf"><label class="sl">요약 언어</label>
+              <select class="ss">
+                <option>한국어만</option><option>영어만</option>
+                <option selected>한국어 + 영어 동시 (토큰 2배)</option>
+              </select>
+            </div>
+          </div>
+          <div class="set-card">
+            <div class="set-card-title">// 보안 제외 — 경로 패턴</div>
+            <div class="excl-tags" id="pathTags">
+              <span class="etag">**/.env <span class="etag-x" onclick="removeTag(this)">✕</span></span>
+              <span class="etag">**/secrets/** <span class="etag-x" onclick="removeTag(this)">✕</span></span>
+              <span class="etag">**/config/prod/** <span class="etag-x" onclick="removeTag(this)">✕</span></span>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:14px">
+              <input class="si" id="pathInput" placeholder="패턴 추가 (예: **/private/**)" style="flex:1">
+              <button onclick="addTag('path')" style="padding:6px 10px;border-radius:4px;border:1px solid var(--color-primary);background:transparent;color:var(--color-primary);cursor:pointer;font-size:11px;white-space:nowrap">+ 추가</button>
+            </div>
+            <div class="set-card-title" style="margin-top:4px">// 보안 제외 — 확장자 패턴</div>
+            <div class="excl-tags" id="extTags">
+              <span class="etag">.pem <span class="etag-x" onclick="removeTag(this)">✕</span></span>
+              <span class="etag">.key <span class="etag-x" onclick="removeTag(this)">✕</span></span>
+              <span class="etag">.p12 <span class="etag-x" onclick="removeTag(this)">✕</span></span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <input class="si" id="extInput" placeholder="확장자 추가 (예: .cert)" style="flex:1">
+              <button onclick="addTag('ext')" style="padding:6px 10px;border-radius:4px;border:1px solid var(--color-primary);background:transparent;color:var(--color-primary);cursor:pointer;font-size:11px;white-space:nowrap">+ 추가</button>
+            </div>
+          </div>
+          <div class="set-card">
+            <div class="set-card-title">// 위험 영역</div>
+            <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;line-height:1.6;">이 레포지토리와 관련된 모든 초안 기록 및 설정이 삭제됩니다.</p>
+            <button class="danger-btn" onclick="confirmDelete()">레포지토리 삭제</button>
+          </div>
+        </div>
+        <div class="save-row">
+          <button class="save-btn" onclick="saveSettings()">저장하기 →</button>
+        </div>
+      </div>
+
+      <!-- ADD REPO PAGE -->
+      <div class="page" id="page-add">
+        <div class="add-wrap">
+          <div class="add-card">
+            <div class="add-title">레포지토리 추가</div>
+            <div class="add-sub">플랫폼, 방식, 보안 규칙을 설정하세요</div>
+            <div class="opt-grid">
+              <div class="opt-btn on" onclick="selOpt(this,'platform')"><div class="opt-ic">🦊</div><div class="opt-nm">GitLab</div></div>
+              <div class="opt-btn" onclick="selOpt(this,'platform')"><div class="opt-ic">🐙</div><div class="opt-nm">GitHub</div></div>
+            </div>
+            <div class="opt-grid">
+              <div class="opt-btn on" onclick="selOpt(this,'source')"><div class="opt-ic">🌐</div><div class="opt-nm">API 방식</div></div>
+              <div class="opt-btn" onclick="selOpt(this,'source')"><div class="opt-ic">📁</div><div class="opt-nm">로컬 폴더</div></div>
+            </div>
+            <div class="sf"><label class="sl">저장소 URL</label><input class="si" id="addUrl" placeholder="https://gitlab.com/org/repo"></div>
+            <div class="sf"><label class="sl">ACCESS TOKEN</label><input class="si" id="addToken" type="password" placeholder="토큰 입력"></div>
+            <div class="sf"><label class="sl">요약 언어</label>
+              <select class="ss" id="addLang" onchange="checkLangWarning(this)">
+                <option>한국어만</option><option>영어만</option>
+                <option>한국어 + 영어 동시 (토큰 2배)</option>
+              </select>
+            </div>
+            <div id="langWarning" style="display:none;font-size:11px;color:var(--color-warning);background:rgba(201,168,106,0.1);border:1px solid rgba(201,168,106,0.3);border-radius:5px;padding:7px 10px;margin-bottom:8px">
+              ⚠ 한국어 + 영어 동시 선택 시 AI 토큰이 약 2배 사용됩니다.
+            </div>
+            <div class="sf"><label class="sl">보안 제외 경로 패턴 (쉼표 구분)</label><input class="si" placeholder="**/.env, **/secrets/**"></div>
+            <div class="sf"><label class="sl">보안 제외 확장자 패턴 (쉼표 구분)</label><input class="si" placeholder=".pem, .key"></div>
+            <button class="add-submit" onclick="addRepo()">레포지토리 추가하기 →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GLOBAL SETTINGS PAGE -->
+      <div class="page" id="page-global">
+        <div class="page-title" style="margin-bottom:16px">전역 설정</div>
+        <div class="gs-grid">
+          <div class="set-card">
+            <div class="set-card-title">// AI 설정</div>
+            <div class="sf"><label class="sl">AI 제공자</label><select class="ss"><option>Claude (Anthropic)</option><option>GPT-4 (OpenAI)</option></select></div>
+            <div class="sf"><label class="sl">API KEY</label><input class="si" type="password" value="sk-ant-xxxxxxxxxxxx"></div>
+            <div class="sf"><label class="sl">NAVER WORKS API KEY</label><input class="si" type="password" value="nw-xxxxxxxxxxxx"></div>
+          </div>
+          <div class="set-card">
+            <div class="set-card-title">// 앱 설정</div>
+            <div class="sf"><label class="sl">UI 언어</label><select class="ss"><option>한국어</option><option>English</option></select></div>
+            <div class="sf"><label class="sl">테마</label>
+              <select class="ss" onchange="setThemeFromSelect(this)">
+                <option value="light">라이트 모드</option>
+                <option value="dark">다크 모드</option>
+              </select>
+            </div>
+            <div class="sf"><label class="sl">시작 프로그램 등록</label><select class="ss"><option>켜기</option><option selected>끄기</option></select></div>
+          </div>
+        </div>
+        <div class="save-row"><button class="save-btn" onclick="saveGlobal()">저장하기 →</button></div>
+      </div>
+
+    </div><!-- /main-area -->
+  </div><!-- /app-body -->
+</div><!-- /chrome -->
+
+<script>
+// ===== STATE =====
+let currentRepo = 'shop';
+let currentRail = 'draft';
+let currentLang = 'ko';
+
+const repoData = {
+  shop:   { name: 'shop-frontend',  platform: 'GitLab', version: 'v2.4.1', date: '2026.04.03 14:32', commit: 'a3f9e12' },
+  admin:  { name: 'admin-panel',    platform: 'GitHub', version: 'v1.9.3', date: '2026.04.02 09:15', commit: 'c4d5e6f' },
+  api:    { name: 'api-server',     platform: 'GitLab', version: 'v3.1.0', date: '2026.04.01 16:44', commit: 'd7e8f9a' },
+  mobile: { name: 'mobile-app',     platform: 'GitHub', version: 'v0.8.2', date: '2026.03.30 11:20', commit: 'e1f2a3b' },
+};
+
+// ===== THEME =====
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('thmBtn').textContent = isDark ? '🌙' : '☀️';
+}
+function setThemeFromSelect(sel) {
+  document.documentElement.setAttribute('data-theme', sel.value);
+  document.getElementById('thmBtn').textContent = sel.value === 'dark' ? '☀️' : '🌙';
+}
+
+// ===== LANG =====
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('lngKo').classList.toggle('on', lang === 'ko');
+  document.getElementById('lngEn').classList.toggle('on', lang === 'en');
+}
+
+// ===== RAIL =====
+function switchRail(rail) {
+  currentRail = rail;
+  ['draft','history','settings','add','global'].forEach(r => {
+    document.getElementById('page-' + r)?.classList.remove('active');
+    const btn = document.getElementById('rail-' + r);
+    if (btn) btn.classList.remove('on');
+  });
+  const page = document.getElementById('page-' + rail);
+  if (page) page.classList.add('active');
+  const btn = document.getElementById('rail-' + rail);
+  if (btn) btn.classList.add('on');
+
+  // Update window title
+  const titles = { draft:'초안 검토', history:'기록', settings:'레포 설정', add:'레포 추가', global:'전역 설정' };
+  document.getElementById('winTitle').textContent = 'UpdateNote — ' + (titles[rail] || '');
+}
+
+// ===== REPO SELECT =====
+function selectRepo(el, repo) {
+  document.querySelectorAll('.repo-item').forEach(r => r.classList.remove('active'));
+  el.classList.add('active');
+  currentRepo = repo;
+  const d = repoData[repo];
+
+  document.getElementById('draftTitle').textContent = d.name + ' / ' + d.version;
+  document.getElementById('draftMeta').innerHTML =
+    `<span>📅 ${d.date}</span><span>${d.platform === 'GitLab' ? '🦊' : '🐙'} ${d.platform}</span><span>commit: ${d.commit}</span>`;
+  document.getElementById('histTitle').textContent = d.name + ' 기록';
+  document.getElementById('setTitle').textContent = d.name + ' 설정';
+
+  toast('레포 전환', d.name + ' 초안을 불러왔습니다.', 'info');
+}
+
+// ===== TABS =====
+function switchTab(btn, tab) {
+  btn.closest('.tab-group').querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  ['ko','en','diff'].forEach(t => {
+    const el = document.getElementById('content-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+// ===== PUBLISH =====
+function publishWorks() {
+  const html = `<h2>v2.4.1 업데이트 안내</h2><ul><li>장바구니 오류 수정</li><li>영수증 PDF 다운로드 추가</li></ul>`;
+  navigator.clipboard.writeText(html).catch(() => {});
+  toast('Naver Works', 'HTML이 클립보드에 복사되었습니다. Works 에디터에 붙여넣기 하세요.', 'success');
+}
+function publishMd() {
+  const md = `# v2.4.1 업데이트 안내\n\n## 버그수정\n- 장바구니 오류 수정\n- 결제 버튼 모바일 표시 수정\n\n## 기능추가\n- 영수증 PDF 다운로드\n\n## UI변경\n- 필터 메뉴 디자인 개선`;
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'v2.4.1-update.md';
+  a.click();
+  toast('Markdown', 'v2.4.1-update.md 파일이 다운로드되었습니다.', 'success');
+}
+function publishTxt() {
+  const txt = `v2.4.1 업데이트 안내\n\n버그수정\n- 장바구니 오류 수정\n- 결제 버튼 모바일 표시 수정\n\n기능추가\n- 영수증 PDF 다운로드\n\nUI변경\n- 필터 메뉴 디자인 개선`;
+  navigator.clipboard.writeText(txt).catch(() => {});
+  toast('텍스트 복사', '텍스트가 클립보드에 복사되었습니다.', 'success');
+}
+function publishGo() {
+  toast('발행 완료', repoData[currentRepo].name + ' ' + repoData[currentRepo].version + ' 업데이트 노트가 발행되었습니다.', 'success');
+}
+
+// ===== HISTORY =====
+function openHistory(ver) {
+  toast('기록 열람', ver + ' 초안을 불러옵니다...', 'info');
+  setTimeout(() => {
+    repoData[currentRepo].version = ver;
+    document.getElementById('draftTitle').textContent = repoData[currentRepo].name + ' / ' + ver;
+    switchRail('draft');
+  }, 800);
+}
+
+// ===== TAGS =====
+function removeTag(x) {
+  x.closest('.etag').remove();
+  toast('제외 규칙', '패턴이 제거되었습니다.', 'info');
+}
+function addTag(type) {
+  const input = document.getElementById(type === 'path' ? 'pathInput' : 'extInput');
+  const val = input.value.trim();
+  if (!val) return;
+  const container = document.getElementById(type === 'path' ? 'pathTags' : 'extTags');
+  const span = document.createElement('span');
+  span.className = 'etag';
+  span.innerHTML = val + ' <span class="etag-x" onclick="removeTag(this)">✕</span>';
+  container.appendChild(span);
+  input.value = '';
+  toast('제외 규칙', '"' + val + '" 패턴이 추가되었습니다.', 'success');
+}
+
+// ===== DELETE =====
+function confirmDelete() {
+  openModal(
+    '레포지토리 삭제',
+    `"${repoData[currentRepo].name}" 레포지토리와 관련된 모든 초안 기록 및 설정이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.`,
+    () => {
+      toast('삭제 완료', repoData[currentRepo].name + ' 레포지토리가 삭제되었습니다.', 'alert');
+      closeModal();
+    }
+  );
+}
+
+// ===== SAVE =====
+function saveSettings() { toast('설정 저장', repoData[currentRepo].name + ' 설정이 저장되었습니다.', 'success'); }
+function saveGlobal() { toast('설정 저장', '전역 설정이 저장되었습니다.', 'success'); }
+
+// ===== ADD REPO =====
+function selOpt(el, group) {
+  el.closest('.opt-grid').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+function checkLangWarning(sel) {
+  document.getElementById('langWarning').style.display =
+    sel.value.includes('동시') ? 'block' : 'none';
+}
+function addRepo() {
+  const url = document.getElementById('addUrl').value.trim();
+  if (!url) { toast('오류', '저장소 URL을 입력해주세요.', 'alert'); return; }
+  const name = url.split('/').pop() || 'new-repo';
+  toast('레포 추가', '"' + name + '" 레포지토리가 추가되었습니다.', 'success');
+
+  const list = document.getElementById('repoList');
+  const item = document.createElement('div');
+  item.className = 'repo-item';
+  item.setAttribute('data-repo', name);
+  item.innerHTML = `<div class="repo-ico gh">🐙</div><div class="repo-info"><div class="repo-name">${name}</div><div class="repo-sub">GitHub</div></div>`;
+  item.onclick = () => selectRepo(item, name);
+  list.appendChild(item);
+  repoData[name] = { name, platform: 'GitHub', version: 'v0.0.1', date: '-', commit: '-' };
+  document.getElementById('addUrl').value = '';
+  switchRail('draft');
+}
+
+// ===== TOAST =====
+function toast(title, msg, type = 'info') {
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  const colors = { success: 'var(--color-primary)', info: 'var(--color-info)', alert: 'var(--color-alert)', warning: 'var(--color-warning)' };
+  el.style.borderLeftColor = colors[type] || colors.info;
+  el.innerHTML = `<div class="toast-title" style="color:${colors[type]}">${title}</div>${msg}`;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+// ===== MODAL =====
+let modalCb = null;
+function openModal(title, desc, cb) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalDesc').textContent = desc;
+  modalCb = cb;
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modalConfirm').onclick = cb;
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  modalCb = null;
+}
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+</script>
+</body>
+</html>
