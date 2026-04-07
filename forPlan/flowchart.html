@@ -104,6 +104,7 @@ main { padding: 48px; max-width: 1200px; margin: 0 auto; }
 .node.type-ui      { border-left: 3px solid var(--color-primary); }
 .node.type-notify  { border-left: 3px solid var(--color-warning); }
 .node.type-publish { border-left: 3px solid var(--color-primary); }
+.node.type-sidebar { border-left: 3px solid var(--color-info); }
 
 .node-tag {
   font-family: 'Pretendard', sans-serif; font-size: 9px;
@@ -116,6 +117,7 @@ main { padding: 48px; max-width: 1200px; margin: 0 auto; }
 .type-ui .node-tag      { color: var(--color-primary); }
 .type-notify .node-tag  { color: var(--color-warning); }
 .type-publish .node-tag { color: var(--color-primary); }
+.type-sidebar .node-tag { color: var(--color-info); }
 
 .node-title { font-size: 13px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 3px; }
 .node-desc  { font-size: 11px; color: var(--color-text-secondary); line-height: 1.6; }
@@ -133,6 +135,80 @@ main { padding: 48px; max-width: 1200px; margin: 0 auto; }
   font-size: 11px; color: var(--color-text-muted);
 }
 
+/* SIDEBAR STRUCTURE */
+.sidebar-struct {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.sidebar-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+.sidebar-item {
+  background: var(--color-bg-secondary);
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+.sidebar-item.highlight {
+  background: #D6EAD6;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.sidebar-item.muted {
+  background: var(--color-bg-primary);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+.sidebar-divider {
+  font-size: 9px;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+  padding: 2px 0;
+  text-align: center;
+}
+
+/* TAB BAR */
+.tab-bar {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.tab-bar-label {
+  font-size: 9px; letter-spacing: 2px;
+  color: var(--color-info); font-weight: 500;
+  margin-bottom: 8px;
+}
+.tab-bar-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--color-text-primary); margin-bottom: 10px;
+}
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.tab {
+  background: var(--color-bg-secondary);
+  border-radius: 6px;
+  padding: 7px 6px;
+  text-align: center;
+  transition: all .2s;
+}
+.tab:hover { background: #D6EAD6; }
+.tab-name { font-size: 11px; font-weight: 600; color: var(--color-text-primary); }
+.tab-desc { font-size: 9px; color: var(--color-text-muted); margin-top: 2px; line-height: 1.4; }
+.tab.active {
+  background: var(--color-primary);
+}
+.tab.active .tab-name { color: var(--color-white); }
+.tab.active .tab-desc { color: rgba(244,246,242,0.75); }
+
 /* PUBLISH 3-SPLIT */
 .pub3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 .pub-item {
@@ -148,7 +224,7 @@ main { padding: 48px; max-width: 1200px; margin: 0 auto; }
 
 /* INFRA */
 .infra {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
   padding-top: 28px; border-top: 1px solid var(--color-bg-secondary);
 }
 .infra-card {
@@ -189,42 +265,42 @@ main { padding: 48px; max-width: 1200px; margin: 0 auto; }
         <div class="node type-trigger">
           <div class="node-tag">TRIGGER</div>
           <div class="node-title">앱 실행 / 수동 체크</div>
-          <div class="node-desc">앱 시작 시 등록된 모든 레포 자동 체크<br>"지금 확인" 버튼으로 수동 실행</div>
+          <div class="node-desc">앱 시작 시 등록된 모든 레포 자동 체크<br>"지금 확인" 버튼으로 수동 실행 — 전체 또는 특정 레포 선택<br>시작 프로그램 등록 옵션 (설정에서 켜기/끄기)</div>
         </div>
         <div class="arrow"><div class="arrow-line"></div></div>
 
         <div class="node type-process">
           <div class="node-tag">PROCESS</div>
-          <div class="node-title">레포별 새 커밋 감지</div>
-          <div class="node-desc">마지막 확인 SHA 이후 변경사항 탐색<br>GitLab/GitHub API 또는 로컬 git 폴더 (레포별 선택)</div>
+          <div class="node-title">레포별 새 커밋 동시 감지</div>
+          <div class="node-desc">등록된 모든 레포 병렬 체크<br>마지막 확인 SHA 이후 변경사항 탐색<br>GitLab/GitHub API 또는 로컬 git 폴더 (레포별 선택)</div>
         </div>
         <div class="arrow"><div class="arrow-line"></div></div>
 
         <div class="node type-process">
           <div class="node-tag">PROCESS</div>
           <div class="node-title">git diff 추출</div>
-          <div class="node-desc">레포별 독립 보안 제외 규칙 적용<br>경로 패턴 & 확장자 패턴 (전역 규칙 없음)</div>
+          <div class="node-desc">레포별 독립 보안 제외 규칙 적용<br>경로 패턴 &amp; 확장자 패턴 (전역 규칙 없음)<br>보안 규칙 적용 후 diff 추출 — 순서 고정</div>
         </div>
         <div class="arrow"><div class="arrow-line"></div></div>
 
         <div class="node type-notify">
           <div class="node-tag">NOTIFY</div>
           <div class="node-title">토스트 알림</div>
-          <div class="node-desc">새 배포 감지 시 앱 내 토스트 알림<br>레포 이름 + 커밋 정보 함께 표시</div>
+          <div class="node-desc">새 배포 감지 시 앱 내 토스트 알림<br>레포 이름 + 커밋 정보 함께 표시<br>사이드바 레포에 알림 뱃지 표시</div>
         </div>
         <div class="arrow"><div class="arrow-line"></div></div>
 
         <div class="node type-ai">
           <div class="node-tag">AI</div>
           <div class="node-title">AI 요약 생성</div>
-          <div class="node-desc">Claude / GPT (전역 설정, 교체 가능)<br>요약 언어는 레포별 설정 (한국어 / 영어 / 둘 다)<br>버그수정 / 기능추가 / UI변경 / 성능개선 분류</div>
+          <div class="node-desc">Claude / GPT (전역 설정, 교체 가능)<br>요약 언어는 레포별 설정 — 한국어 / 영어 / 둘 다 (토큰 2배 경고)<br>변경 유형 자동 분류: 버그수정 / 기능추가 / UI변경 / 성능개선</div>
         </div>
         <div class="arrow"><div class="arrow-line"></div></div>
 
         <div class="node type-store">
           <div class="node-tag">STORE</div>
           <div class="node-title">SQLite 로컬 저장</div>
-          <div class="node-desc">레포별 초안 기록 영구 저장<br>레포별 설정값 + 전역 설정값 저장</div>
+          <div class="node-desc">레포별 초안 기록 영구 저장<br>레포별 설정값 + 전역 설정값 저장<br>API Key는 electron-store 암호화 저장</div>
         </div>
 
       </div>
@@ -232,27 +308,55 @@ main { padding: 48px; max-width: 1200px; margin: 0 auto; }
 
     <!-- RIGHT: DASHBOARD -->
     <div>
-      <div class="col-label">// REVIEW & PUBLISH</div>
+      <div class="col-label">// SIDEBAR & REVIEW & PUBLISH</div>
       <div class="chain">
 
-        <div class="node type-ui">
-          <div class="node-tag">UI</div>
-          <div class="node-title">레포 선택</div>
-          <div class="node-desc">사이드바 레포 목록에서 선택<br>새 커밋 있는 레포에 알림 뱃지 표시</div>
+        <div class="node type-sidebar">
+          <div class="node-tag">SIDEBAR</div>
+          <div class="node-title">사이드바 — 레포 선택</div>
+          <div class="node-desc">접기/펼치기 가능 · 펼침: 레포 이름 + 알림 뱃지 · 접힘: 이니셜 아이콘 + 뱃지</div>
+          <div class="sidebar-struct">
+            <div class="sidebar-col">
+              <div class="sidebar-item highlight">+ 레포 추가 (최상단)</div>
+              <div class="sidebar-item">레포 A ●</div>
+              <div class="sidebar-item">레포 B</div>
+              <div class="sidebar-item">레포 C ●</div>
+              <div class="sidebar-item muted">⋯</div>
+              <div class="sidebar-item highlight">⚙ 설정 (하단 고정)</div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+
+        <!-- TAB BAR -->
+        <div class="tab-bar">
+          <div class="tab-bar-label">// MAIN AREA TABS</div>
+          <div class="tab-bar-title">상단 탭으로 페이지 전환</div>
+          <div class="tabs">
+            <div class="tab">
+              <div class="tab-name">대시보드</div>
+              <div class="tab-desc">레포 상태 요약 새로고침</div>
+            </div>
+            <div class="tab active">
+              <div class="tab-name">릴리즈 노트</div>
+              <div class="tab-desc">초안 확인·수정·발행 새로고침</div>
+            </div>
+            <div class="tab">
+              <div class="tab-name">깃 그래프</div>
+              <div class="tab-desc">커밋 히스토리 시각화 새로고침</div>
+            </div>
+            <div class="tab">
+              <div class="tab-name">설정</div>
+              <div class="tab-desc">레포별 설정 수정·삭제</div>
+            </div>
+          </div>
         </div>
         <div class="arrow"><div class="arrow-line"></div></div>
 
         <div class="node type-ui">
-          <div class="node-tag">UI</div>
-          <div class="node-title">초안 확인 & 수정</div>
-          <div class="node-desc">해당 레포의 최신 초안 표시<br>한/영 탭 전환 · 직접 편집 가능</div>
-        </div>
-        <div class="arrow"><div class="arrow-line"></div></div>
-
-        <div class="node type-ui">
-          <div class="node-tag">HISTORY</div>
-          <div class="node-title">과거 기록 열람</div>
-          <div class="node-desc">레포별 초안 히스토리 목록<br>과거 버전 재열람 및 재발행 가능</div>
+          <div class="node-tag">UI — 릴리즈 노트 목록 탭</div>
+          <div class="node-title">초안 확인 &amp; 수정</div>
+          <div class="node-desc">해당 레포의 AI 요약 초안 표시<br>한/영 탭 전환 · 직접 편집 가능<br>과거 기록 열람 — 레포별 히스토리 재열람 및 재발행</div>
         </div>
         <div class="arrow"><div class="arrow-line"></div></div>
 
@@ -296,6 +400,11 @@ main { padding: 48px; max-width: 1200px; margin: 0 auto; }
       <div class="infra-tag">// LOCAL DB</div>
       <div class="infra-title">SQLite</div>
       <div class="infra-desc">레포별 초안 기록<br>전역 + 레포별 설정값</div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-tag">// SECURE STORE</div>
+      <div class="infra-title">electron-store</div>
+      <div class="infra-desc">API Key / Access Token<br>암호화 저장</div>
     </div>
     <div class="infra-card">
       <div class="infra-tag">// DIFF SOURCE</div>

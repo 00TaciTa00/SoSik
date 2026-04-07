@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UpdateNote — Interactive Mockup</title>
+<title>Sosik — Interactive Mockup v2</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 :root {
@@ -111,308 +111,554 @@ body {
 /* ===== MAIN LAYOUT ===== */
 .app-body {
   display: grid;
-  grid-template-columns: 52px 190px 1fr;
+  grid-template-columns: var(--sidebar-width) 1fr;
   overflow: hidden; height: 100%;
+  --sidebar-width: 200px;
+  transition: grid-template-columns .3s ease;
+}
+.app-body.collapsed {
+  --sidebar-width: 52px;
 }
 
-/* ===== ICON RAIL ===== */
-.rail {
-  background: var(--color-bg-secondary);
-  border-right: 1px solid rgba(0,0,0,0.06);
-  display: flex; flex-direction: column;
-  align-items: center; padding: 14px 0; gap: 6px;
-  transition: background .25s;
-}
-[data-theme="dark"] .rail { border-right-color: rgba(255,255,255,0.04); }
-.rail-btn {
-  width: 34px; height: 34px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; cursor: pointer; transition: all .15s;
-  border: 1px solid transparent; color: var(--color-text-muted);
-  background: transparent; position: relative;
-}
-.rail-btn.on {
-  background: var(--color-surface);
-  border-color: var(--color-bg-secondary);
-  color: var(--color-primary);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-.rail-btn:hover:not(.on) { background: rgba(94,127,95,0.1); color: var(--color-primary); }
-.rail-sep { width: 22px; height: 1px; background: var(--color-bg-secondary); margin: 2px 0; }
-
-/* ===== REPO LIST ===== */
-.repo-panel {
+/* ===== SIDEBAR ===== */
+.sidebar {
   background: var(--color-surface);
   border-right: 1px solid var(--color-bg-secondary);
   display: flex; flex-direction: column;
   overflow: hidden; transition: background .25s, border-color .25s;
+  position: relative;
 }
-.rp-head {
+
+/* Sidebar Header */
+.sidebar-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 14px 10px;
-  border-bottom: 1px solid var(--color-bg-secondary);
+  padding: 14px 12px; border-bottom: 1px solid var(--color-bg-secondary);
+  background: var(--color-bg-secondary); transition: background .25s;
+  flex-shrink: 0;
 }
-.rp-lbl {
-  font-family: 'Pretendard', sans-serif; font-size: 9px;
-  letter-spacing: 2px; color: var(--color-text-muted);
+.sb-add {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 6px;
+  border: 1px solid var(--color-primary);
+  background: rgba(94,127,95,0.08); color: var(--color-primary);
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  transition: all .15s; white-space: nowrap; flex: 1;
+  justify-content: center;
 }
-.rp-add {
-  width: 20px; height: 20px; border-radius: 4px;
+.sb-add:hover { background: rgba(94,127,95,0.15); }
+.sb-add .icon { font-size: 14px; }
+.sb-add .text { font-family: 'Pretendard', sans-serif; }
+.app-body.collapsed .sb-add .text { display: none; }
+.app-body.collapsed .sb-add { padding: 8px; min-width: 0; }
+
+.sb-toggle {
+  width: 26px; height: 26px; border-radius: 4px;
   border: 1px solid var(--color-bg-secondary);
   background: transparent; color: var(--color-text-muted);
   cursor: pointer; font-size: 14px;
   display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
+  transition: all .15s; flex-shrink: 0; margin-left: 6px;
 }
-.rp-add:hover { border-color: var(--color-primary); color: var(--color-primary); }
-.repo-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.sb-toggle:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.app-body.collapsed .sidebar-header { justify-content: center; padding: 14px 6px; }
+.app-body.collapsed .sb-toggle { margin-left: 0; }
+
+/* Repo List */
+.repo-list { flex: 1; overflow-y: auto; padding: 8px 6px; }
 .repo-item {
   display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px; cursor: pointer; transition: all .15s;
-  margin: 1px 6px; border-radius: 7px;
-  border: 1px solid transparent;
+  padding: 10px 8px; cursor: pointer; transition: all .15s;
+  margin-bottom: 4px; border-radius: 7px;
+  border: 1px solid transparent; position: relative;
 }
 .repo-item.active {
-  background: rgba(94,127,95,0.1);
-  border-color: rgba(94,127,95,0.25);
+  background: rgba(94,127,95,0.12);
+  border-color: rgba(94,127,95,0.3);
 }
 .repo-item:hover:not(.active) { background: var(--color-bg-secondary); }
-.repo-ico {
-  width: 28px; height: 28px; border-radius: 6px;
+
+.repo-avatar {
+  width: 32px; height: 32px; border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; flex-shrink: 0;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+  color: var(--color-white); transition: all .15s;
 }
-.repo-ico.gl { background: rgba(201,168,106,0.15); border: 1px solid rgba(201,168,106,0.3); }
-.repo-ico.gh { background: rgba(111,163,160,0.15); border: 1px solid rgba(111,163,160,0.3); }
-.repo-info { flex: 1; min-width: 0; }
-.repo-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.repo-sub { font-family: 'Pretendard', sans-serif; font-size: 9px; color: var(--color-text-muted); margin-top: 1px; }
+.repo-avatar.gl { background: linear-gradient(135deg, #C9A86A, #B6975C); }
+.repo-avatar.gh { background: linear-gradient(135deg, #6FA3A0, #5F9390); }
+.app-body.collapsed .repo-avatar { font-size: 12px; }
+
+.repo-info { flex: 1; min-width: 0; overflow: hidden; }
+.repo-name {
+  font-size: 12px; font-weight: 600; color: var(--color-text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: 'Pretendard', sans-serif;
+}
+.repo-platform {
+  font-size: 9px; color: var(--color-text-muted);
+  margin-top: 2px; font-family: 'Pretendard', sans-serif;
+}
+
 .badge {
-  min-width: 17px; height: 17px; border-radius: 9px;
+  min-width: 18px; height: 18px; border-radius: 9px;
   background: var(--color-warning); color: var(--color-black);
   font-size: 9px; font-weight: 700; display: flex;
-  align-items: center; justify-content: center; padding: 0 4px;
+  align-items: center; justify-content: center; padding: 0 5px;
   flex-shrink: 0; font-family: 'Pretendard', sans-serif;
 }
+
+.app-body.collapsed .repo-info { display: none; }
+.app-body.collapsed .repo-item { justify-content: center; padding: 10px 6px; }
+.app-body.collapsed .badge {
+  position: absolute; top: 2px; right: 2px;
+  min-width: 14px; height: 14px; font-size: 8px; padding: 0 3px;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  border-top: 1px solid var(--color-bg-secondary);
+  padding: 10px 6px; flex-shrink: 0;
+  background: var(--color-bg-secondary); transition: background .25s;
+}
+.sb-global {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 8px; border-radius: 6px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--color-text-secondary); cursor: pointer;
+  transition: all .15s; font-size: 12px; font-weight: 600;
+  width: 100%; font-family: 'Pretendard', sans-serif;
+  justify-content: flex-start;
+}
+.sb-global:hover { background: var(--color-surface); border-color: var(--color-bg-secondary); }
+.sb-global .icon { font-size: 16px; flex-shrink: 0; }
+.sb-global .text { font-family: 'Pretendard', sans-serif; }
+.app-body.collapsed .sb-global { justify-content: center; }
+.app-body.collapsed .sb-global .text { display: none; }
 
 /* ===== MAIN AREA ===== */
 .main-area {
   overflow-y: auto; overflow-x: hidden;
   background: var(--color-bg-primary);
   transition: background .25s;
+  display: flex; flex-direction: column;
+}
+
+/* ===== TABS (for repo pages) ===== */
+.main-tabs {
+  display: none; /* Hidden by default */
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-bg-secondary);
+  padding: 0 24px; gap: 4px;
+  transition: background .25s, border-color .25s;
+}
+.main-tabs.active { display: flex; }
+.main-tab {
+  padding: 12px 18px; border: none; background: transparent;
+  color: var(--color-text-muted); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'Pretendard', sans-serif;
+  border-bottom: 2px solid transparent; transition: all .15s;
+  position: relative;
+}
+.main-tab:hover { color: var(--color-text-primary); }
+.main-tab.on {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 /* ===== PAGES ===== */
-.page { display: none; padding: 24px 28px; }
-.page.active { display: flex; flex-direction: column; gap: 16px; }
+.page { display: none; padding: 24px 28px; flex: 1; }
+.page.active { display: flex; flex-direction: column; gap: 18px; }
 
 /* Page header */
-.page-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.page-title-group { flex: 1; min-width: 0; }
 .page-title {
   font-family: 'Pretendard', sans-serif; font-weight: 700;
-  font-size: 22px; color: var(--color-text-primary);
+  font-size: 24px; color: var(--color-text-primary); margin-bottom: 6px;
 }
 .page-meta {
-  display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap;
-  font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-muted);
+  display: flex; gap: 10px; flex-wrap: wrap;
+  font-family: 'Pretendard', sans-serif; font-size: 11px; color: var(--color-text-muted);
 }
-.status-pill {
+.page-actions {
+  display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0;
+}
+.btn-refresh {
+  padding: 8px 14px; border-radius: 6px; font-size: 12px;
+  border: 1px solid var(--color-bg-secondary);
+  background: var(--color-surface); color: var(--color-text-secondary);
+  cursor: pointer; font-family: 'Pretendard', sans-serif;
+  transition: all .15s; display: flex; align-items: center; gap: 6px;
+  font-weight: 600;
+}
+.btn-refresh:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+.btn-primary {
+  padding: 8px 16px; border-radius: 6px; font-size: 12px;
+  border: none; background: var(--color-primary); color: var(--color-white);
+  cursor: pointer; font-family: 'Pretendard', sans-serif;
+  transition: all .15s; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-primary:hover { background: var(--color-primary-hover); }
+.btn-primary:active { background: var(--color-primary-active); }
+
+/* ===== DASHBOARD TAB ===== */
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.dash-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px; padding: 18px;
+  transition: background .25s, border-color .25s;
+}
+.dash-card-title {
   font-family: 'Pretendard', sans-serif; font-size: 10px;
-  padding: 4px 12px; border-radius: 20px;
-  border: 1px solid rgba(201,168,106,0.4);
-  color: var(--color-warning); background: rgba(201,168,106,0.1);
-  white-space: nowrap; flex-shrink: 0;
+  letter-spacing: 1.5px; color: var(--color-text-muted);
+  margin-bottom: 10px; text-transform: uppercase;
+}
+.dash-card-value {
+  font-size: 32px; font-weight: 700; color: var(--color-primary);
+  font-family: 'Pretendard', sans-serif; margin-bottom: 4px;
+}
+.dash-card-label {
+  font-size: 12px; color: var(--color-text-secondary);
+  font-family: 'Pretendard', sans-serif;
+}
+.dash-card.highlight {
+  border-color: var(--color-warning);
+  background: rgba(201,168,106,0.05);
+}
+.dash-card.highlight .dash-card-value {
+  color: var(--color-warning);
 }
 
-/* Tags */
-.tag-row { display: flex; gap: 5px; flex-wrap: wrap; }
-.tag {
-  font-family: 'Pretendard', sans-serif; font-size: 10px;
-  font-weight: 500; padding: 2px 8px; border-radius: 3px;
+.commit-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.commit-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 7px;
+  background: var(--color-bg-secondary);
+  transition: all .15s; cursor: pointer;
 }
-.tag-fix { background: rgba(184,92,92,0.1); color: var(--color-alert); border: 1px solid rgba(184,92,92,0.25); }
-.tag-feat { background: rgba(94,127,95,0.1); color: var(--color-primary); border: 1px solid rgba(94,127,95,0.25); }
-.tag-ui { background: rgba(111,163,160,0.1); color: var(--color-info); border: 1px solid rgba(111,163,160,0.25); }
+.commit-item:hover { background: var(--color-bg-primary); }
+.commit-hash {
+  font-family: 'Pretendard', monospace; font-size: 11px;
+  color: var(--color-info); font-weight: 600;
+  padding: 3px 7px; border-radius: 4px;
+  background: rgba(111,163,160,0.1);
+  flex-shrink: 0;
+}
+.commit-msg {
+  flex: 1; font-size: 12px; color: var(--color-text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: 'Pretendard', sans-serif;
+}
+.commit-date {
+  font-size: 10px; color: var(--color-text-muted);
+  font-family: 'Pretendard', sans-serif; flex-shrink: 0;
+}
 
-/* Draft card */
-.draft-card {
+/* ===== RELEASE NOTES LIST TAB ===== */
+.release-list { display: flex; flex-direction: column; gap: 12px; }
+.release-card {
   background: var(--color-surface);
   border: 1px solid var(--color-bg-secondary);
   border-radius: 10px; overflow: hidden;
-  transition: background .25s, border-color .25s;
+  transition: all .25s; cursor: pointer;
 }
-.card-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px; border-bottom: 1px solid var(--color-bg-secondary);
-  background: var(--color-bg-secondary); transition: background .25s;
+.release-card:hover { border-color: var(--color-primary); }
+.release-card.expanded { cursor: default; }
+
+.release-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; background: var(--color-bg-secondary);
+  transition: background .25s;
 }
-.card-lbl { font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-muted); }
-.tab-group { display: flex; gap: 3px; }
-.tab {
+.release-version {
+  font-family: 'Pretendard', sans-serif; font-weight: 700;
+  font-size: 16px; color: var(--color-text-primary); min-width: 80px;
+}
+.release-meta { flex: 1; min-width: 0; }
+.release-date {
+  font-size: 10px; color: var(--color-text-muted);
+  font-family: 'Pretendard', sans-serif; margin-bottom: 4px;
+}
+.tag-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.tag {
   font-family: 'Pretendard', sans-serif; font-size: 10px;
-  padding: 3px 10px; border-radius: 4px;
-  border: 1px solid transparent; background: transparent;
-  color: var(--color-text-muted); cursor: pointer; transition: all .15s;
+  font-weight: 600; padding: 2px 8px; border-radius: 3px;
 }
-.tab.on { background: var(--color-surface); border-color: var(--color-bg-secondary); color: var(--color-text-primary); }
-.tab:hover:not(.on) { color: var(--color-text-secondary); }
-.card-body { padding: 16px 18px; }
-.draft-title {
-  font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700;
-  margin-bottom: 8px; color: var(--color-text-primary);
+.tag-fix { background: rgba(184,92,92,0.12); color: var(--color-alert); border: 1px solid rgba(184,92,92,0.25); }
+.tag-feat { background: rgba(94,127,95,0.12); color: var(--color-primary); border: 1px solid rgba(94,127,95,0.25); }
+.tag-ui { background: rgba(111,163,160,0.12); color: var(--color-info); border: 1px solid rgba(111,163,160,0.25); }
+
+.release-preview {
+  padding: 14px 18px; font-size: 12px; color: var(--color-text-secondary);
+  line-height: 1.6; font-family: 'Pretendard', sans-serif;
 }
-.draft-intro { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px; line-height: 1.7; }
+
+.release-expand {
+  color: var(--color-text-muted); font-size: 14px;
+  transition: transform .3s; flex-shrink: 0;
+}
+.release-card.expanded .release-expand {
+  transform: rotate(180deg);
+}
+
+/* Release Detail (when expanded) */
+.release-detail {
+  display: none; border-top: 1px solid var(--color-bg-secondary);
+}
+.release-card.expanded .release-detail { display: block; }
+
+.detail-tabs {
+  display: flex; gap: 2px; padding: 12px 18px 0;
+  border-bottom: 1px solid var(--color-bg-secondary);
+}
+.detail-tab {
+  padding: 8px 14px; border: none; background: transparent;
+  color: var(--color-text-muted); font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: 'Pretendard', sans-serif;
+  border-bottom: 2px solid transparent; transition: all .15s;
+  border-radius: 4px 4px 0 0;
+}
+.detail-tab:hover { color: var(--color-text-primary); }
+.detail-tab.on {
+  color: var(--color-primary);
+  background: var(--color-bg-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.detail-content {
+  padding: 18px; min-height: 150px; max-height: 400px; overflow-y: auto;
+}
+.detail-pane { display: none; }
+.detail-pane.active { display: block; }
+
+.detail-section {
+  margin-bottom: 18px;
+}
+.detail-section-title {
+  font-size: 13px; font-weight: 700; color: var(--color-text-primary);
+  margin-bottom: 8px; font-family: 'Pretendard', sans-serif;
+}
 .change-list { list-style: none; }
 .change-item {
   display: flex; gap: 8px; align-items: flex-start;
-  padding: 8px 0; border-bottom: 1px solid var(--color-bg-secondary);
-  font-size: 12px; color: var(--color-text-secondary); line-height: 1.6;
+  padding: 6px 0; font-size: 12px; color: var(--color-text-secondary);
+  line-height: 1.6; font-family: 'Pretendard', sans-serif;
 }
-.change-item:last-child { border-bottom: none; }
+.change-bullet { color: var(--color-primary); font-weight: 700; flex-shrink: 0; }
 
-/* Diff view */
 .diff-view {
-  font-family: 'Pretendard', sans-serif; font-size: 11px;
+  font-family: 'Pretendard', monospace; font-size: 11px;
   background: var(--color-bg-primary); border-radius: 6px;
-  padding: 12px; line-height: 1.7; color: var(--color-text-secondary);
-  max-height: 200px; overflow-y: auto;
+  padding: 14px; line-height: 1.7; color: var(--color-text-secondary);
+  white-space: pre-wrap; word-wrap: break-word;
 }
 .diff-add { color: var(--color-primary); }
 .diff-del { color: var(--color-alert); }
-.diff-hdr { color: var(--color-info); }
+.diff-hdr { color: var(--color-info); font-weight: 600; }
 
-/* Publish bar */
-.pub-bar {
-  background: var(--color-surface);
-  border: 1px solid var(--color-bg-secondary);
-  border-radius: 10px; padding: 14px 18px;
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  transition: background .25s, border-color .25s;
+.release-actions {
+  display: flex; gap: 8px; padding: 14px 18px;
+  border-top: 1px solid var(--color-bg-secondary);
+  background: var(--color-bg-secondary); flex-wrap: wrap;
 }
-.pub-lbl { font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-muted); }
-.pub-btn {
-  padding: 7px 13px; border-radius: 6px;
-  font-size: 12px; font-weight: 500; cursor: pointer;
-  border: 1px solid; font-family: 'Pretendard', sans-serif;
-  transition: all .15s; display: flex; align-items: center; gap: 5px;
+.action-btn {
+  padding: 8px 14px; border-radius: 6px; font-size: 12px;
+  font-weight: 600; cursor: pointer; font-family: 'Pretendard', sans-serif;
+  transition: all .15s; display: flex; align-items: center; gap: 6px;
+  border: 1px solid;
 }
-.pb-works { background: rgba(201,168,106,0.1); border-color: rgba(201,168,106,0.35); color: var(--color-warning); }
-.pb-works:hover { background: rgba(201,168,106,0.2); border-color: var(--color-warning); }
-.pb-md { background: rgba(111,163,160,0.1); border-color: rgba(111,163,160,0.35); color: var(--color-info); }
-.pb-md:hover { background: rgba(111,163,160,0.2); border-color: var(--color-info); }
-.pb-txt { background: rgba(94,127,95,0.1); border-color: rgba(94,127,95,0.3); color: var(--color-primary); }
-.pb-txt:hover { background: rgba(94,127,95,0.2); border-color: var(--color-primary); }
-.pb-go {
+.ab-works { background: rgba(201,168,106,0.1); border-color: rgba(201,168,106,0.35); color: var(--color-warning); }
+.ab-works:hover { background: rgba(201,168,106,0.2); border-color: var(--color-warning); }
+.ab-md { background: rgba(111,163,160,0.1); border-color: rgba(111,163,160,0.35); color: var(--color-info); }
+.ab-md:hover { background: rgba(111,163,160,0.2); border-color: var(--color-info); }
+.ab-txt { background: rgba(94,127,95,0.1); border-color: rgba(94,127,95,0.3); color: var(--color-primary); }
+.ab-txt:hover { background: rgba(94,127,95,0.2); border-color: var(--color-primary); }
+.ab-publish {
   background: var(--color-primary); border-color: var(--color-primary);
-  color: var(--color-white); font-weight: 700; margin-left: auto;
+  color: var(--color-white); margin-left: auto;
 }
-.pb-go:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
-.pb-go:active { background: var(--color-primary-active); }
+.ab-publish:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
 
-/* ===== HISTORY ===== */
-.hist-list { display: flex; flex-direction: column; gap: 8px; }
-.hist-item {
+/* ===== GIT GRAPH TAB ===== */
+.graph-container {
   background: var(--color-surface);
   border: 1px solid var(--color-bg-secondary);
-  border-radius: 10px; padding: 14px 18px;
-  display: flex; align-items: center; gap: 14px;
-  cursor: pointer; transition: all .15s;
-}
-.hist-item:hover { border-color: var(--color-primary); background: rgba(94,127,95,0.04); }
-.hist-ver { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 17px; min-width: 60px; color: var(--color-text-primary); }
-.hist-meta { flex: 1; }
-.hist-date { font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-muted); margin-bottom: 3px; }
-.hist-prev { font-size: 12px; color: var(--color-text-secondary); }
-.hist-arr { color: var(--color-text-muted); font-size: 16px; }
-
-/* ===== REPO SETTINGS ===== */
-.set-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-.set-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-bg-secondary);
-  border-radius: 10px; padding: 16px;
+  border-radius: 10px; padding: 20px;
   transition: background .25s, border-color .25s;
 }
-.set-card-title {
-  font-family: 'Pretendard', sans-serif; font-size: 9px;
-  letter-spacing: 2px; color: var(--color-text-muted);
-  margin-bottom: 12px; padding-bottom: 10px;
-  border-bottom: 1px solid var(--color-bg-secondary);
+.graph-list { display: flex; flex-direction: column; gap: 0; }
+.graph-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 0; position: relative;
 }
-.sf { margin-bottom: 10px; }
-.sl { display: block; font-family: 'Pretendard', sans-serif; font-size: 10px; color: var(--color-text-secondary); margin-bottom: 3px; }
-.si, .ss {
+.graph-item:not(:last-child)::before {
+  content: ''; position: absolute; left: 16px; top: 40px;
+  width: 2px; height: calc(100% - 20px);
+  background: var(--color-bg-secondary);
+}
+.graph-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--color-primary); border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 2px var(--color-bg-secondary);
+  flex-shrink: 0; margin-top: 4px; position: relative; z-index: 1;
+}
+.graph-dot.main { background: var(--color-primary); }
+.graph-dot.feature { background: var(--color-info); }
+.graph-content { flex: 1; min-width: 0; }
+.graph-hash {
+  font-family: 'Pretendard', monospace; font-size: 11px;
+  color: var(--color-info); font-weight: 600;
+  padding: 2px 6px; border-radius: 3px;
+  background: rgba(111,163,160,0.1);
+  display: inline-block; margin-bottom: 4px;
+}
+.graph-message {
+  font-size: 13px; color: var(--color-text-primary);
+  font-family: 'Pretendard', sans-serif; font-weight: 500;
+  margin-bottom: 4px;
+}
+.graph-meta {
+  display: flex; gap: 12px; font-size: 10px;
+  color: var(--color-text-muted); font-family: 'Pretendard', sans-serif;
+}
+
+/* ===== SETTINGS TAB (repo-specific) ===== */
+.settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+.settings-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 10px; padding: 18px;
+  transition: background .25s, border-color .25s;
+}
+.settings-card-title {
+  font-family: 'Pretendard', sans-serif; font-size: 10px;
+  letter-spacing: 1.5px; color: var(--color-text-muted);
+  margin-bottom: 14px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-bg-secondary);
+  text-transform: uppercase;
+}
+.form-field { margin-bottom: 12px; }
+.form-label {
+  display: block; font-family: 'Pretendard', sans-serif;
+  font-size: 11px; color: var(--color-text-secondary);
+  margin-bottom: 5px; font-weight: 600;
+}
+.form-input, .form-select {
   width: 100%; background: var(--color-bg-primary);
   border: 1px solid var(--color-bg-secondary);
-  border-radius: 5px; padding: 7px 10px;
+  border-radius: 6px; padding: 8px 11px;
   font-size: 12px; color: var(--color-text-primary);
-  font-family: 'Pretendard', sans-serif; transition: all .25s;
-}
-.si:focus { outline: none; border-color: var(--color-primary); }
-.excl-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
-.etag {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 7px; border-radius: 3px;
-  background: rgba(184,92,92,0.08);
-  border: 1px solid rgba(184,92,92,0.25);
-  font-size: 10px; font-family: 'Pretendard', sans-serif; color: var(--color-alert);
-}
-.etag-x { cursor: pointer; color: var(--color-text-muted); }
-.etag-x:hover { color: var(--color-alert); }
-.danger-btn {
-  width: 100%; padding: 8px; border-radius: 5px;
-  border: 1px solid rgba(184,92,92,0.3);
-  background: rgba(184,92,92,0.08); color: var(--color-alert);
-  font-size: 12px; font-weight: 600; cursor: pointer;
   font-family: 'Pretendard', sans-serif; transition: all .15s;
-  margin-top: 8px;
 }
-.danger-btn:hover { background: rgba(184,92,92,0.15); border-color: var(--color-alert); }
-.save-row { display: flex; justify-content: flex-end; margin-top: 8px; }
-.save-btn {
-  padding: 8px 22px; border-radius: 6px; font-size: 12px;
+.form-input:focus, .form-select:focus {
+  outline: none; border-color: var(--color-primary);
+}
+.form-readonly {
+  width: 100%; background: var(--color-bg-secondary);
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 6px; padding: 8px 10px;
+  font-size: 12px; color: var(--color-text-muted);
+  font-family: 'Pretendard', sans-serif;
+  cursor: default; user-select: text;
+}
+
+.excl-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.excl-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 8px; border-radius: 4px;
+  background: rgba(184,92,92,0.1);
+  border: 1px solid rgba(184,92,92,0.25);
+  font-size: 11px; font-family: 'Pretendard', sans-serif;
+  color: var(--color-alert); font-weight: 600;
+}
+.excl-tag-x {
+  cursor: pointer; color: var(--color-text-muted);
+  font-weight: 700; transition: color .15s;
+}
+.excl-tag-x:hover { color: var(--color-alert); }
+
+.btn-danger {
+  width: 100%; padding: 9px; border-radius: 6px;
+  border: 1px solid rgba(184,92,92,0.3);
+  background: rgba(184,92,92,0.1); color: var(--color-alert);
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-family: 'Pretendard', sans-serif; transition: all .15s;
+  margin-top: 10px;
+}
+.btn-danger:hover { background: rgba(184,92,92,0.18); border-color: var(--color-alert); }
+
+.btn-save {
+  padding: 9px 24px; border-radius: 6px; font-size: 12px;
   font-weight: 700; border: none;
   background: var(--color-primary); color: var(--color-white);
-  cursor: pointer; font-family: 'Pretendard', sans-serif; transition: all .15s;
+  cursor: pointer; font-family: 'Pretendard', sans-serif;
+  transition: all .15s; margin-top: 12px; width: 100%;
 }
-.save-btn:hover { background: var(--color-primary-hover); }
+.btn-save:hover { background: var(--color-primary-hover); }
 
-/* ===== GLOBAL SETTINGS ===== */
-.gs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* ===== GLOBAL SETTINGS PAGE ===== */
+.global-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 14px; }
 
-/* ===== ADD REPO ===== */
-.add-wrap { display: flex; align-items: center; justify-content: center; min-height: 500px; }
+/* ===== ADD REPO PAGE ===== */
+.add-wrapper {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 500px; padding: 40px 20px;
+}
 .add-card {
   background: var(--color-surface);
   border: 1px solid var(--color-bg-secondary);
-  border-radius: 12px; padding: 32px; max-width: 440px; width: 100%;
+  border-radius: 12px; padding: 36px; max-width: 480px; width: 100%;
   transition: background .25s, border-color .25s;
 }
-.add-title { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 4px; color: var(--color-text-primary); }
-.add-sub { font-size: 12px; color: var(--color-text-muted); margin-bottom: 20px; }
-.opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-.opt-btn {
-  padding: 10px; border-radius: 7px;
+.add-title {
+  font-family: 'Pretendard', sans-serif; font-weight: 700;
+  font-size: 22px; margin-bottom: 6px; color: var(--color-text-primary);
+}
+.add-subtitle {
+  font-size: 13px; color: var(--color-text-muted);
+  margin-bottom: 24px; font-family: 'Pretendard', sans-serif;
+}
+.platform-select {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 18px;
+}
+.platform-option {
+  padding: 14px; border-radius: 8px;
   border: 1px solid var(--color-bg-secondary);
   background: var(--color-bg-primary); cursor: pointer;
   text-align: center; transition: all .15s;
 }
-.opt-btn.on { border-color: var(--color-primary); background: rgba(94,127,95,0.08); }
-.opt-btn:hover:not(.on) { border-color: var(--color-bg-secondary); background: var(--color-bg-secondary); }
-.opt-ic { font-size: 18px; margin-bottom: 3px; }
-.opt-nm { font-size: 12px; font-weight: 600; color: var(--color-text-primary); }
-.add-submit {
-  width: 100%; padding: 11px; border-radius: 7px;
+.platform-option.selected {
+  border-color: var(--color-primary);
+  background: rgba(94,127,95,0.1);
+}
+.platform-option:hover:not(.selected) {
+  border-color: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+}
+.platform-icon { font-size: 24px; margin-bottom: 6px; }
+.platform-name {
+  font-size: 13px; font-weight: 700;
+  color: var(--color-text-primary); font-family: 'Pretendard', sans-serif;
+}
+
+.btn-submit {
+  width: 100%; padding: 12px; border-radius: 7px;
   font-size: 13px; font-weight: 700; border: none;
   background: var(--color-primary); color: var(--color-white);
   cursor: pointer; font-family: 'Pretendard', sans-serif;
-  transition: all .15s; margin-top: 6px;
+  transition: all .15s; margin-top: 8px;
 }
-.add-submit:hover { background: var(--color-primary-hover); }
-.add-submit:active { background: var(--color-primary-active); }
+.btn-submit:hover { background: var(--color-primary-hover); }
+.btn-submit:active { background: var(--color-primary-active); }
 
 /* ===== TOAST ===== */
-.toast-wrap {
+.toast-container {
   position: fixed; top: 50px; right: 20px; z-index: 9999;
   display: flex; flex-direction: column; gap: 8px;
   pointer-events: none;
@@ -422,55 +668,81 @@ body {
   border: 1px solid var(--color-primary);
   border-left: 4px solid var(--color-primary);
   border-radius: 8px; padding: 12px 16px;
-  min-width: 260px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  min-width: 280px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   font-size: 13px; color: var(--color-text-primary);
   animation: slideIn .3s ease, fadeOut .3s ease 2.7s forwards;
-  pointer-events: auto;
+  pointer-events: auto; font-family: 'Pretendard', sans-serif;
 }
-.toast-title { font-weight: 600; margin-bottom: 2px; color: var(--color-primary); font-size: 12px; }
-@keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateX(20px); } }
+.toast-title {
+  font-weight: 700; margin-bottom: 2px;
+  color: var(--color-primary); font-size: 12px;
+}
+@keyframes slideIn {
+  from { transform: translateX(110%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateX(20px); }
+}
 
 /* ===== MODAL ===== */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-  display: none; align-items: center; justify-content: center; z-index: 8888;
-  backdrop-filter: blur(4px);
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: none; align-items: center; justify-content: center;
+  z-index: 8888; backdrop-filter: blur(4px);
 }
 .modal-overlay.open { display: flex; }
 .modal {
   background: var(--color-surface);
   border: 1px solid var(--color-bg-secondary);
-  border-radius: 12px; padding: 28px; max-width: 360px; width: 90%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  border-radius: 12px; padding: 28px; max-width: 400px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
 }
-.modal-title { font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-.modal-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 20px; line-height: 1.6; }
-.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-title {
+  font-family: 'Pretendard', sans-serif; font-size: 18px;
+  font-weight: 700; margin-bottom: 8px; color: var(--color-text-primary);
+}
+.modal-desc {
+  font-size: 13px; color: var(--color-text-secondary);
+  margin-bottom: 20px; line-height: 1.6; font-family: 'Pretendard', sans-serif;
+}
+.modal-buttons { display: flex; gap: 8px; justify-content: flex-end; }
 .modal-cancel {
-  padding: 8px 18px; border-radius: 6px; font-size: 12px;
+  padding: 9px 18px; border-radius: 6px; font-size: 12px;
   border: 1px solid var(--color-bg-secondary); background: transparent;
   color: var(--color-text-secondary); cursor: pointer; transition: all .15s;
+  font-family: 'Pretendard', sans-serif; font-weight: 600;
 }
 .modal-cancel:hover { background: var(--color-bg-secondary); }
 .modal-confirm {
-  padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 700;
-  border: none; background: var(--color-alert); color: #fff; cursor: pointer; transition: all .15s;
+  padding: 9px 18px; border-radius: 6px; font-size: 12px; font-weight: 700;
+  border: none; background: var(--color-alert); color: #fff;
+  cursor: pointer; transition: all .15s; font-family: 'Pretendard', sans-serif;
 }
 .modal-confirm:hover { background: var(--color-alert-hover); }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 </style>
 </head>
 <body>
 
 <!-- TOAST -->
-<div class="toast-wrap" id="toastWrap"></div>
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="modal">
+<div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-title" id="modalTitle">레포지토리 삭제</div>
     <div class="modal-desc" id="modalDesc">이 레포지토리와 관련된 모든 초안 기록 및 설정이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</div>
-    <div class="modal-btns">
+    <div class="modal-buttons">
       <button class="modal-cancel" onclick="closeModal()">취소</button>
       <button class="modal-confirm" id="modalConfirm">삭제</button>
     </div>
@@ -480,8 +752,10 @@ body {
 <!-- APP -->
 <div class="chrome">
   <div class="titlebar">
-    <div class="tdot r"></div><div class="tdot y"></div><div class="tdot g"></div>
-    <div class="ttitle" id="winTitle">UpdateNote</div>
+    <div class="tdot r"></div>
+    <div class="tdot y"></div>
+    <div class="tdot g"></div>
+    <div class="ttitle" id="winTitle">Sosik</div>
     <div class="tright">
       <button class="tlng on" id="lngKo" onclick="setLang('ko')">KO</button>
       <button class="tlng" id="lngEn" onclick="setLang('en')">EN</button>
@@ -489,480 +763,881 @@ body {
     </div>
   </div>
 
-  <div class="app-body">
+  <div class="app-body" id="appBody">
 
-    <!-- RAIL -->
-    <div class="rail">
-      <button class="rail-btn on" id="rail-draft" onclick="switchRail('draft')" title="초안">📋</button>
-      <button class="rail-btn" id="rail-history" onclick="switchRail('history')" title="기록">🕐</button>
-      <div class="rail-sep"></div>
-      <button class="rail-btn" id="rail-settings" onclick="switchRail('settings')" title="레포 설정">⚙️</button>
-      <button class="rail-btn" id="rail-global" onclick="switchRail('global')" title="전역 설정">🔧</button>
-    </div>
-
-    <!-- REPO LIST -->
-    <div class="repo-panel">
-      <div class="rp-head">
-        <div class="rp-lbl">REPOS</div>
-        <button class="rp-add" onclick="switchRail('add')" title="레포 추가">+</button>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <!-- Header -->
+      <div class="sidebar-header">
+        <button class="sb-add" onclick="showAddRepo()" aria-label="Add Repository">
+          <span class="icon">+</span>
+          <span class="text">레포 추가</span>
+        </button>
+        <button class="sb-toggle" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+          <span id="toggleIcon">‹</span>
+        </button>
       </div>
+
+      <!-- Repo List -->
       <div class="repo-list" id="repoList">
-        <div class="repo-item active" data-repo="shop" onclick="selectRepo(this,'shop')">
-          <div class="repo-ico gl">🦊</div>
+        <div class="repo-item active" onclick="selectRepo('shop-frontend')" data-repo="shop-frontend">
+          <div class="repo-avatar gl">S</div>
           <div class="repo-info">
             <div class="repo-name">shop-frontend</div>
-            <div class="repo-sub">GitLab</div>
+            <div class="repo-platform">GitLab</div>
           </div>
-          <div class="badge">1</div>
+          <div class="badge">3</div>
         </div>
-        <div class="repo-item" data-repo="admin" onclick="selectRepo(this,'admin')">
-          <div class="repo-ico gh">🐙</div>
+        <div class="repo-item" onclick="selectRepo('admin-panel')" data-repo="admin-panel">
+          <div class="repo-avatar gh">A</div>
           <div class="repo-info">
             <div class="repo-name">admin-panel</div>
-            <div class="repo-sub">GitHub</div>
+            <div class="repo-platform">GitHub</div>
+          </div>
+          <div class="badge">7</div>
+        </div>
+        <div class="repo-item" onclick="selectRepo('api-server')" data-repo="api-server">
+          <div class="repo-avatar gl">A</div>
+          <div class="repo-info">
+            <div class="repo-name">api-server</div>
+            <div class="repo-platform">GitLab</div>
+          </div>
+        </div>
+        <div class="repo-item" onclick="selectRepo('mobile-app')" data-repo="mobile-app">
+          <div class="repo-avatar gh">M</div>
+          <div class="repo-info">
+            <div class="repo-name">mobile-app</div>
+            <div class="repo-platform">GitHub</div>
           </div>
           <div class="badge">2</div>
         </div>
-        <div class="repo-item" data-repo="api" onclick="selectRepo(this,'api')">
-          <div class="repo-ico gl">🦊</div>
-          <div class="repo-info">
-            <div class="repo-name">api-server</div>
-            <div class="repo-sub">GitLab</div>
-          </div>
-        </div>
-        <div class="repo-item" data-repo="mobile" onclick="selectRepo(this,'mobile')">
-          <div class="repo-ico gh">🐙</div>
-          <div class="repo-info">
-            <div class="repo-name">mobile-app</div>
-            <div class="repo-sub">GitHub</div>
-          </div>
-        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <button class="sb-global" onclick="showGlobalSettings()" aria-label="Global Settings">
+          <span class="icon">⚙️</span>
+          <span class="text">전역 설정</span>
+        </button>
       </div>
     </div>
 
-    <!-- MAIN -->
+    <!-- MAIN AREA -->
     <div class="main-area">
+      <!-- Tabs (shown only when repo selected) -->
+      <div class="main-tabs active" id="mainTabs">
+        <button class="main-tab on" onclick="switchTab('dashboard')" data-tab="dashboard">대시보드</button>
+        <button class="main-tab" onclick="switchTab('releases')" data-tab="releases">릴리즈 노트 목록</button>
+        <button class="main-tab" onclick="switchTab('graph')" data-tab="graph">깃 그래프</button>
+        <button class="main-tab" onclick="switchTab('settings')" data-tab="settings">설정</button>
+      </div>
 
-      <!-- DRAFT PAGE -->
-      <div class="page active" id="page-draft">
-        <div class="page-hd">
-          <div>
-            <div class="page-title" id="draftTitle">shop-frontend / v2.4.1</div>
-            <div class="page-meta" id="draftMeta">
-              <span>📅 2026.04.03 14:32</span>
-              <span>🦊 GitLab</span>
-              <span>commit: a3f9e12</span>
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-title">shop-frontend</div>
+            <div class="page-meta">
+              <span>GitLab</span>
+              <span>•</span>
+              <span>마지막 체크: 2026-04-07 14:32</span>
             </div>
           </div>
-          <div class="status-pill">● 검토 대기중</div>
+          <div class="page-actions">
+            <button class="btn-refresh" onclick="refreshDashboard()">
+              <span>🔄</span>
+              <span>새로고침</span>
+            </button>
+          </div>
         </div>
 
-        <div class="tag-row">
-          <span class="tag tag-fix">버그수정 2</span>
-          <span class="tag tag-feat">기능추가 1</span>
-          <span class="tag tag-ui">UI변경 1</span>
+        <div class="dash-grid">
+          <div class="dash-card highlight">
+            <div class="dash-card-title">New Commits</div>
+            <div class="dash-card-value">3</div>
+            <div class="dash-card-label">배포 대기 중인 새 커밋</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">Last Release</div>
+            <div class="dash-card-value">v2.4.1</div>
+            <div class="dash-card-label">2026-03-28</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">Total Releases</div>
+            <div class="dash-card-value">18</div>
+            <div class="dash-card-label">발행된 릴리즈 노트</div>
+          </div>
         </div>
 
-        <div class="draft-card">
-          <div class="card-head">
-            <div class="card-lbl">// DRAFT CONTENT</div>
-            <div class="tab-group">
-              <button class="tab on" onclick="switchTab(this,'ko')">한국어</button>
-              <button class="tab" onclick="switchTab(this,'en')">English</button>
-              <button class="tab" onclick="switchTab(this,'diff')">원본 diff</button>
+        <div>
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--color-text-primary);">최근 커밋</h3>
+          <div class="commit-list">
+            <div class="commit-item">
+              <div class="commit-hash">a3f8c2d</div>
+              <div class="commit-msg">Fix: 장바구니 수량 증가 버그 수정</div>
+              <div class="commit-date">2시간 전</div>
+            </div>
+            <div class="commit-item">
+              <div class="commit-hash">7b2e1fa</div>
+              <div class="commit-msg">Feat: 상품 상세 페이지 이미지 확대 기능 추가</div>
+              <div class="commit-date">5시간 전</div>
+            </div>
+            <div class="commit-item">
+              <div class="commit-hash">5d9c4ab</div>
+              <div class="commit-msg">UI: 검색 바 디자인 개선</div>
+              <div class="commit-date">1일 전</div>
+            </div>
+            <div class="commit-item">
+              <div class="commit-hash">e1a7f93</div>
+              <div class="commit-msg">Refactor: API 호출 로직 최적화</div>
+              <div class="commit-date">2일 전</div>
             </div>
           </div>
-          <div class="card-body">
-            <div id="content-ko">
-              <div class="draft-title">🛠 v2.4.1 업데이트 안내</div>
-              <div class="draft-intro">안녕하세요! 서비스 이용에 불편을 드렸던 몇 가지 문제를 수정하고, 새로운 기능을 추가했습니다.</div>
-              <ul class="change-list">
-                <li class="change-item"><span class="tag tag-fix" style="flex-shrink:0;white-space:nowrap">버그수정</span><span>장바구니에 상품을 담을 때 간헐적으로 오류가 발생하던 문제를 해결했습니다.</span></li>
-                <li class="change-item"><span class="tag tag-fix" style="flex-shrink:0;white-space:nowrap">버그수정</span><span>모바일 환경에서 결제 버튼이 제대로 표시되지 않던 문제를 수정했습니다.</span></li>
-                <li class="change-item"><span class="tag tag-feat" style="flex-shrink:0;white-space:nowrap">기능추가</span><span>주문 내역 페이지에서 영수증을 PDF로 다운로드할 수 있게 되었습니다.</span></li>
-                <li class="change-item"><span class="tag tag-ui" style="flex-shrink:0;white-space:nowrap">UI변경</span><span>상품 목록 필터 메뉴 디자인이 더 보기 쉽게 개선되었습니다.</span></li>
-              </ul>
-            </div>
-            <div id="content-en" style="display:none">
-              <div class="draft-title">🛠 v2.4.1 Update Notice</div>
-              <div class="draft-intro">Hello! We fixed several issues that caused inconvenience and added a new feature.</div>
-              <ul class="change-list">
-                <li class="change-item"><span class="tag tag-fix" style="flex-shrink:0;white-space:nowrap">Bug Fix</span><span>Fixed an intermittent error that occurred when adding items to the cart.</span></li>
-                <li class="change-item"><span class="tag tag-fix" style="flex-shrink:0;white-space:nowrap">Bug Fix</span><span>Fixed the payment button not displaying correctly on mobile devices.</span></li>
-                <li class="change-item"><span class="tag tag-feat" style="flex-shrink:0;white-space:nowrap">New Feature</span><span>You can now download receipts as PDF from the order history page.</span></li>
-                <li class="change-item"><span class="tag tag-ui" style="flex-shrink:0;white-space:nowrap">UI Change</span><span>Improved the filter menu design on the product list page for better readability.</span></li>
-              </ul>
-            </div>
-            <div id="content-diff" style="display:none">
-              <div class="diff-view">
-<span class="diff-hdr">diff --git a/src/cart/CartService.ts b/src/cart/CartService.ts</span>
-<span class="diff-del">- async addItem(item: CartItem): Promise&lt;void&gt; {</span>
-<span class="diff-add">+ async addItem(item: CartItem): Promise&lt;CartResult&gt; {</span>
-<span class="diff-add">+   if (!this.validateItem(item)) throw new CartError('INVALID_ITEM');</span>
-    return this.repository.save(item);
-  }
+        </div>
+      </div>
 
-<span class="diff-hdr">diff --git a/src/payment/PaymentButton.tsx b/src/payment/PaymentButton.tsx</span>
-<span class="diff-del">- style={{ display: isDesktop ? 'block' : 'none' }}</span>
-<span class="diff-add">+ style={{ display: 'block', visibility: isDesktop ? 'visible' : 'hidden' }}</span>
+      <!-- RELEASES PAGE -->
+      <div class="page" id="page-releases">
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-title">릴리즈 노트 목록</div>
+            <div class="page-meta">
+              <span>shop-frontend</span>
+            </div>
+          </div>
+          <div class="page-actions">
+            <button class="btn-refresh" onclick="refreshReleases()">
+              <span>🔄</span>
+              <span>새로고침</span>
+            </button>
+            <button class="btn-primary" onclick="generateRelease()">
+              <span>✨</span>
+              <span>AI 요약 생성</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="release-list">
+          <!-- Release Card 1 -->
+          <div class="release-card" id="release-1" onclick="toggleRelease('release-1')">
+            <div class="release-header">
+              <div class="release-version">v2.4.1</div>
+              <div class="release-meta">
+                <div class="release-date">2026-03-28</div>
+                <div class="tag-row">
+                  <span class="tag tag-fix">Fix</span>
+                  <span class="tag tag-feat">Feature</span>
+                  <span class="tag tag-ui">UI</span>
+                </div>
+              </div>
+              <div class="release-expand">▼</div>
+            </div>
+            <div class="release-preview">
+              장바구니 수량 증가 버그 수정, 상품 상세 페이지 이미지 확대 기능 추가, 검색 바 디자인 개선 등이 포함된 업데이트입니다.
+            </div>
+            <div class="release-detail">
+              <div class="detail-tabs">
+                <button class="detail-tab on" onclick="switchDetailTab('release-1', 'ko')" data-lang="ko">한국어</button>
+                <button class="detail-tab" onclick="switchDetailTab('release-1', 'en')" data-lang="en">English</button>
+                <button class="detail-tab" onclick="switchDetailTab('release-1', 'diff')" data-lang="diff">원본 Diff</button>
+              </div>
+              <div class="detail-content">
+                <!-- Korean -->
+                <div class="detail-pane active" data-pane="ko">
+                  <div class="detail-section">
+                    <div class="detail-section-title">주요 변경사항</div>
+                    <ul class="change-list">
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>장바구니에서 수량 증가 시 발생하던 오류를 수정했습니다.</span>
+                      </li>
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>상품 상세 페이지에서 이미지를 클릭하면 확대하여 볼 수 있는 기능을 추가했습니다.</span>
+                      </li>
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>검색 바의 디자인을 개선하여 사용성을 향상시켰습니다.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <!-- English -->
+                <div class="detail-pane" data-pane="en">
+                  <div class="detail-section">
+                    <div class="detail-section-title">Key Changes</div>
+                    <ul class="change-list">
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>Fixed a bug that occurred when increasing quantity in the shopping cart.</span>
+                      </li>
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>Added image zoom feature on product detail pages.</span>
+                      </li>
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>Improved search bar design for better usability.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <!-- Diff -->
+                <div class="detail-pane" data-pane="diff">
+                  <div class="diff-view"><span class="diff-hdr">diff --git a/src/components/Cart.tsx</span>
+<span class="diff-del">- if (quantity > 0) {</span>
+<span class="diff-add">+ if (quantity >= 0) {</span>
+
+<span class="diff-hdr">diff --git a/src/pages/ProductDetail.tsx</span>
+<span class="diff-add">+ const [isZoomed, setIsZoomed] = useState(false);</span>
+<span class="diff-add">+ &lt;img onClick={() => setIsZoomed(true)} /&gt;</span></div>
+                </div>
+              </div>
+              <div class="release-actions">
+                <button class="action-btn ab-works" onclick="copyToWorks()">
+                  <span>📋</span>
+                  <span>Naver Works 복사</span>
+                </button>
+                <button class="action-btn ab-md" onclick="saveMarkdown()">
+                  <span>💾</span>
+                  <span>Markdown 저장</span>
+                </button>
+                <button class="action-btn ab-txt" onclick="copyText()">
+                  <span>📄</span>
+                  <span>텍스트 복사</span>
+                </button>
+                <button class="action-btn ab-publish" onclick="publishRelease()">
+                  <span>🚀</span>
+                  <span>발행하기</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Release Card 2 -->
+          <div class="release-card" id="release-2" onclick="toggleRelease('release-2')">
+            <div class="release-header">
+              <div class="release-version">v2.4.0</div>
+              <div class="release-meta">
+                <div class="release-date">2026-03-21</div>
+                <div class="tag-row">
+                  <span class="tag tag-feat">Feature</span>
+                  <span class="tag tag-ui">UI</span>
+                </div>
+              </div>
+              <div class="release-expand">▼</div>
+            </div>
+            <div class="release-preview">
+              회원가입 시 이메일 인증 기능 추가, 메인 페이지 배너 슬라이더 개선 등이 포함된 업데이트입니다.
+            </div>
+            <div class="release-detail">
+              <div class="detail-tabs">
+                <button class="detail-tab on" onclick="switchDetailTab('release-2', 'ko')" data-lang="ko">한국어</button>
+                <button class="detail-tab" onclick="switchDetailTab('release-2', 'en')" data-lang="en">English</button>
+                <button class="detail-tab" onclick="switchDetailTab('release-2', 'diff')" data-lang="diff">원본 Diff</button>
+              </div>
+              <div class="detail-content">
+                <div class="detail-pane active" data-pane="ko">
+                  <div class="detail-section">
+                    <div class="detail-section-title">주요 변경사항</div>
+                    <ul class="change-list">
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>회원가입 시 이메일 인증 절차를 추가하여 보안을 강화했습니다.</span>
+                      </li>
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>메인 페이지 배너 슬라이더의 애니메이션을 개선했습니다.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="detail-pane" data-pane="en">
+                  <div class="detail-section">
+                    <div class="detail-section-title">Key Changes</div>
+                    <ul class="change-list">
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>Enhanced security by adding email verification during sign-up.</span>
+                      </li>
+                      <li class="change-item">
+                        <span class="change-bullet">•</span>
+                        <span>Improved banner slider animation on the main page.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="detail-pane" data-pane="diff">
+                  <div class="diff-view"><span class="diff-hdr">diff --git a/src/auth/signup.ts</span>
+<span class="diff-add">+ await sendVerificationEmail(email);</span></div>
+                </div>
+              </div>
+              <div class="release-actions">
+                <button class="action-btn ab-works" onclick="copyToWorks()">
+                  <span>📋</span>
+                  <span>Naver Works 복사</span>
+                </button>
+                <button class="action-btn ab-md" onclick="saveMarkdown()">
+                  <span>💾</span>
+                  <span>Markdown 저장</span>
+                </button>
+                <button class="action-btn ab-txt" onclick="copyText()">
+                  <span>📄</span>
+                  <span>텍스트 복사</span>
+                </button>
+                <button class="action-btn ab-publish" onclick="publishRelease()">
+                  <span>🚀</span>
+                  <span>발행하기</span>
+                </button>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="pub-bar">
-          <span class="pub-lbl">발행 포맷 :</span>
-          <button class="pub-btn pb-works" onclick="publishWorks()">📮 Naver Works 복사</button>
-          <button class="pub-btn pb-md" onclick="publishMd()">📄 Markdown 저장</button>
-          <button class="pub-btn pb-txt" onclick="publishTxt()">📋 텍스트 복사</button>
-          <button class="pub-btn pb-go" onclick="publishGo()">발행하기 →</button>
+      <!-- GIT GRAPH PAGE -->
+      <div class="page" id="page-graph">
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-title">깃 그래프</div>
+            <div class="page-meta">
+              <span>shop-frontend</span>
+              <span>•</span>
+              <span>main 브랜치</span>
+            </div>
+          </div>
+          <div class="page-actions">
+            <button class="btn-refresh" onclick="refreshGraph()">
+              <span>🔄</span>
+              <span>새로고침</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="graph-container">
+          <div class="graph-list">
+            <div class="graph-item">
+              <div class="graph-dot main"></div>
+              <div class="graph-content">
+                <div class="graph-hash">a3f8c2d</div>
+                <div class="graph-message">Fix: 장바구니 수량 증가 버그 수정</div>
+                <div class="graph-meta">
+                  <span>김철수</span>
+                  <span>•</span>
+                  <span>2026-04-07 12:30</span>
+                </div>
+              </div>
+            </div>
+            <div class="graph-item">
+              <div class="graph-dot main"></div>
+              <div class="graph-content">
+                <div class="graph-hash">7b2e1fa</div>
+                <div class="graph-message">Feat: 상품 상세 페이지 이미지 확대 기능 추가</div>
+                <div class="graph-meta">
+                  <span>박영희</span>
+                  <span>•</span>
+                  <span>2026-04-07 09:15</span>
+                </div>
+              </div>
+            </div>
+            <div class="graph-item">
+              <div class="graph-dot feature"></div>
+              <div class="graph-content">
+                <div class="graph-hash">5d9c4ab</div>
+                <div class="graph-message">UI: 검색 바 디자인 개선</div>
+                <div class="graph-meta">
+                  <span>이민준</span>
+                  <span>•</span>
+                  <span>2026-04-06 16:45</span>
+                </div>
+              </div>
+            </div>
+            <div class="graph-item">
+              <div class="graph-dot main"></div>
+              <div class="graph-content">
+                <div class="graph-hash">e1a7f93</div>
+                <div class="graph-message">Refactor: API 호출 로직 최적화</div>
+                <div class="graph-meta">
+                  <span>최서연</span>
+                  <span>•</span>
+                  <span>2026-04-05 14:20</span>
+                </div>
+              </div>
+            </div>
+            <div class="graph-item">
+              <div class="graph-dot main"></div>
+              <div class="graph-content">
+                <div class="graph-hash">c9f2b84</div>
+                <div class="graph-message">Feat: 회원가입 이메일 인증 기능 추가</div>
+                <div class="graph-meta">
+                  <span>정다은</span>
+                  <span>•</span>
+                  <span>2026-03-21 11:00</span>
+                </div>
+              </div>
+            </div>
+            <div class="graph-item">
+              <div class="graph-dot feature"></div>
+              <div class="graph-content">
+                <div class="graph-hash">3a8e5c1</div>
+                <div class="graph-message">UI: 메인 페이지 배너 슬라이더 개선</div>
+                <div class="graph-meta">
+                  <span>강현우</span>
+                  <span>•</span>
+                  <span>2026-03-20 17:30</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- HISTORY PAGE -->
-      <div class="page" id="page-history">
-        <div class="page-title" id="histTitle" style="margin-bottom:16px">shop-frontend 기록</div>
-        <div class="hist-list">
-          <div class="hist-item" onclick="openHistory('v2.4.1')">
-            <div class="hist-ver">v2.4.1</div>
-            <div class="hist-meta">
-              <div class="hist-date">2026.04.03 14:32 · commit a3f9e12</div>
-              <div class="hist-prev">장바구니 오류 수정, 영수증 PDF 다운로드 추가...</div>
-            </div>
-            <div class="tag-row"><span class="tag tag-fix">버그수정 2</span><span class="tag tag-feat">기능추가 1</span></div>
-            <div class="hist-arr">›</div>
-          </div>
-          <div class="hist-item" onclick="openHistory('v2.4.0')">
-            <div class="hist-ver">v2.4.0</div>
-            <div class="hist-meta">
-              <div class="hist-date">2026.03.28 10:11 · commit b1c2d3e</div>
-              <div class="hist-prev">다크모드 지원, 알림 설정 추가...</div>
-            </div>
-            <div class="tag-row"><span class="tag tag-feat">기능추가 2</span><span class="tag tag-ui">UI변경 1</span></div>
-            <div class="hist-arr">›</div>
-          </div>
-          <div class="hist-item" onclick="openHistory('v2.3.9')">
-            <div class="hist-ver">v2.3.9</div>
-            <div class="hist-meta">
-              <div class="hist-date">2026.03.20 09:45 · commit f4e5d6c</div>
-              <div class="hist-prev">로그인 세션 만료 버그 수정...</div>
-            </div>
-            <div class="tag-row"><span class="tag tag-fix">버그수정 1</span></div>
-            <div class="hist-arr">›</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- REPO SETTINGS PAGE -->
+      <!-- SETTINGS PAGE (repo-specific) -->
       <div class="page" id="page-settings">
-        <div class="page-title" id="setTitle" style="margin-bottom:16px">shop-frontend 설정</div>
-        <div class="set-grid">
-          <div class="set-card">
-            <div class="set-card-title">// 연동 정보</div>
-            <div class="sf"><label class="sl">플랫폼</label><select class="ss"><option>GitLab</option><option>GitHub</option></select></div>
-            <div class="sf"><label class="sl">diff 소스</label><select class="ss"><option>API 방식</option><option>로컬 git 폴더</option></select></div>
-            <div class="sf"><label class="sl">저장소 URL</label><input class="si" value="https://gitlab.com/org/shop-frontend"></div>
-            <div class="sf"><label class="sl">ACCESS TOKEN</label><input class="si" type="password" value="glpat-xxxx"></div>
-            <div class="sf"><label class="sl">요약 언어</label>
-              <select class="ss">
-                <option>한국어만</option><option>영어만</option>
-                <option selected>한국어 + 영어 동시 (토큰 2배)</option>
-              </select>
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-title">레포 설정</div>
+            <div class="page-meta">
+              <span>shop-frontend</span>
             </div>
-          </div>
-          <div class="set-card">
-            <div class="set-card-title">// 보안 제외 — 경로 패턴</div>
-            <div class="excl-tags" id="pathTags">
-              <span class="etag">**/.env <span class="etag-x" onclick="removeTag(this)">✕</span></span>
-              <span class="etag">**/secrets/** <span class="etag-x" onclick="removeTag(this)">✕</span></span>
-              <span class="etag">**/config/prod/** <span class="etag-x" onclick="removeTag(this)">✕</span></span>
-            </div>
-            <div style="display:flex;gap:6px;margin-bottom:14px">
-              <input class="si" id="pathInput" placeholder="패턴 추가 (예: **/private/**)" style="flex:1">
-              <button onclick="addTag('path')" style="padding:6px 10px;border-radius:4px;border:1px solid var(--color-primary);background:transparent;color:var(--color-primary);cursor:pointer;font-size:11px;white-space:nowrap">+ 추가</button>
-            </div>
-            <div class="set-card-title" style="margin-top:4px">// 보안 제외 — 확장자 패턴</div>
-            <div class="excl-tags" id="extTags">
-              <span class="etag">.pem <span class="etag-x" onclick="removeTag(this)">✕</span></span>
-              <span class="etag">.key <span class="etag-x" onclick="removeTag(this)">✕</span></span>
-              <span class="etag">.p12 <span class="etag-x" onclick="removeTag(this)">✕</span></span>
-            </div>
-            <div style="display:flex;gap:6px">
-              <input class="si" id="extInput" placeholder="확장자 추가 (예: .cert)" style="flex:1">
-              <button onclick="addTag('ext')" style="padding:6px 10px;border-radius:4px;border:1px solid var(--color-primary);background:transparent;color:var(--color-primary);cursor:pointer;font-size:11px;white-space:nowrap">+ 추가</button>
-            </div>
-          </div>
-          <div class="set-card">
-            <div class="set-card-title">// 위험 영역</div>
-            <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;line-height:1.6;">이 레포지토리와 관련된 모든 초안 기록 및 설정이 삭제됩니다.</p>
-            <button class="danger-btn" onclick="confirmDelete()">레포지토리 삭제</button>
           </div>
         </div>
-        <div class="save-row">
-          <button class="save-btn" onclick="saveSettings()">저장하기 →</button>
-        </div>
-      </div>
 
-      <!-- ADD REPO PAGE -->
-      <div class="page" id="page-add">
-        <div class="add-wrap">
-          <div class="add-card">
-            <div class="add-title">레포지토리 추가</div>
-            <div class="add-sub">플랫폼, 방식, 보안 규칙을 설정하세요</div>
-            <div class="opt-grid">
-              <div class="opt-btn on" onclick="selOpt(this,'platform')"><div class="opt-ic">🦊</div><div class="opt-nm">GitLab</div></div>
-              <div class="opt-btn" onclick="selOpt(this,'platform')"><div class="opt-ic">🐙</div><div class="opt-nm">GitHub</div></div>
+        <div class="settings-grid">
+          <div class="settings-card">
+            <div class="settings-card-title">연동 정보</div>
+            <div class="form-field">
+              <label class="form-label">플랫폼</label>
+              <div class="form-readonly">🦊 GitLab</div>
             </div>
-            <div class="opt-grid">
-              <div class="opt-btn on" onclick="selOpt(this,'source')"><div class="opt-ic">🌐</div><div class="opt-nm">API 방식</div></div>
-              <div class="opt-btn" onclick="selOpt(this,'source')"><div class="opt-ic">📁</div><div class="opt-nm">로컬 폴더</div></div>
+            <div class="form-field">
+              <label class="form-label">레포지토리 URL</label>
+              <div class="form-readonly">https://gitlab.com/mycompany/shop-frontend</div>
             </div>
-            <div class="sf"><label class="sl">저장소 URL</label><input class="si" id="addUrl" placeholder="https://gitlab.com/org/repo"></div>
-            <div class="sf"><label class="sl">ACCESS TOKEN</label><input class="si" id="addToken" type="password" placeholder="토큰 입력"></div>
-            <div class="sf"><label class="sl">요약 언어</label>
-              <select class="ss" id="addLang" onchange="checkLangWarning(this)">
-                <option>한국어만</option><option>영어만</option>
-                <option>한국어 + 영어 동시 (토큰 2배)</option>
+            <div class="form-field">
+              <label class="form-label">액세스 토큰</label>
+              <input type="password" class="form-input" value="glpat-xxxxxxxxxxxx" />
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-title">AI 요약 설정</div>
+            <div class="form-field">
+              <label class="form-label">요약 언어</label>
+              <select class="form-select">
+                <option>한국어 + English</option>
+                <option>한국어만</option>
+                <option>English만</option>
               </select>
             </div>
-            <div id="langWarning" style="display:none;font-size:11px;color:var(--color-warning);background:rgba(201,168,106,0.1);border:1px solid rgba(201,168,106,0.3);border-radius:5px;padding:7px 10px;margin-bottom:8px">
-              ⚠ 한국어 + 영어 동시 선택 시 AI 토큰이 약 2배 사용됩니다.
+            <div class="form-field">
+              <label class="form-label">AI 제공자</label>
+              <select class="form-select">
+                <option>Claude (Anthropic)</option>
+                <option>GPT-4 (OpenAI)</option>
+              </select>
             </div>
-            <div class="sf"><label class="sl">보안 제외 경로 패턴 (쉼표 구분)</label><input class="si" placeholder="**/.env, **/secrets/**"></div>
-            <div class="sf"><label class="sl">보안 제외 확장자 패턴 (쉼표 구분)</label><input class="si" placeholder=".pem, .key"></div>
-            <button class="add-submit" onclick="addRepo()">레포지토리 추가하기 →</button>
+            <div class="form-field">
+              <label class="form-label">요약 스타일</label>
+              <select class="form-select">
+                <option>상세</option>
+                <option>간결</option>
+                <option>기술적</option>
+              </select>
+            </div>
           </div>
+
+          <div class="settings-card">
+            <div class="settings-card-title">보안 제외 규칙</div>
+            <div class="form-field">
+              <label class="form-label">제외할 파일/폴더 패턴</label>
+              <div class="excl-tags">
+                <span class="excl-tag">
+                  .env
+                  <span class="excl-tag-x" onclick="removeExcl(this)">×</span>
+                </span>
+                <span class="excl-tag">
+                  config/secrets/
+                  <span class="excl-tag-x" onclick="removeExcl(this)">×</span>
+                </span>
+                <span class="excl-tag">
+                  *.key
+                  <span class="excl-tag-x" onclick="removeExcl(this)">×</span>
+                </span>
+              </div>
+              <input type="text" class="form-input" placeholder="패턴 입력 후 Enter" />
+            </div>
+            <div class="form-field">
+              <label class="form-label">위험 영역 (주의 필요)</label>
+              <div class="excl-tags">
+                <span class="excl-tag">
+                  src/auth/
+                  <span class="excl-tag-x" onclick="removeExcl(this)">×</span>
+                </span>
+                <span class="excl-tag">
+                  api/payment/
+                  <span class="excl-tag-x" onclick="removeExcl(this)">×</span>
+                </span>
+              </div>
+              <input type="text" class="form-input" placeholder="경로 입력 후 Enter" />
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+          <button class="btn-danger" onclick="deleteRepo()">이 레포지토리 삭제</button>
+          <button class="btn-save" onclick="saveSettings()">설정 저장</button>
         </div>
       </div>
 
       <!-- GLOBAL SETTINGS PAGE -->
       <div class="page" id="page-global">
-        <div class="page-title" style="margin-bottom:16px">전역 설정</div>
-        <div class="gs-grid">
-          <div class="set-card">
-            <div class="set-card-title">// AI 설정</div>
-            <div class="sf"><label class="sl">AI 제공자</label><select class="ss"><option>Claude (Anthropic)</option><option>GPT-4 (OpenAI)</option></select></div>
-            <div class="sf"><label class="sl">API KEY</label><input class="si" type="password" value="sk-ant-xxxxxxxxxxxx"></div>
-            <div class="sf"><label class="sl">NAVER WORKS API KEY</label><input class="si" type="password" value="nw-xxxxxxxxxxxx"></div>
-          </div>
-          <div class="set-card">
-            <div class="set-card-title">// 앱 설정</div>
-            <div class="sf"><label class="sl">UI 언어</label><select class="ss"><option>한국어</option><option>English</option></select></div>
-            <div class="sf"><label class="sl">테마</label>
-              <select class="ss" onchange="setThemeFromSelect(this)">
-                <option value="light">라이트 모드</option>
-                <option value="dark">다크 모드</option>
-              </select>
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-title">전역 설정</div>
+            <div class="page-meta">
+              <span>모든 레포지토리에 적용되는 전역 설정</span>
             </div>
-            <div class="sf"><label class="sl">시작 프로그램 등록</label><select class="ss"><option>켜기</option><option selected>끄기</option></select></div>
           </div>
         </div>
-        <div class="save-row"><button class="save-btn" onclick="saveGlobal()">저장하기 →</button></div>
+
+        <div class="global-grid">
+          <div class="settings-card">
+            <div class="settings-card-title">AI 제공자</div>
+            <div class="form-field">
+              <label class="form-label">기본 AI 제공자</label>
+              <select class="form-select">
+                <option>Claude (Anthropic)</option>
+                <option>GPT-4 (OpenAI)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Claude API Key</label>
+              <input type="password" class="form-input" value="sk-ant-xxxxxxxxxxxx" />
+            </div>
+            <div class="form-field">
+              <label class="form-label">OpenAI API Key</label>
+              <input type="password" class="form-input" placeholder="입력하지 않음" />
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-title">앱 설정</div>
+            <div class="form-field">
+              <label class="form-label">기본 언어</label>
+              <select class="form-select">
+                <option>한국어 (KO)</option>
+                <option>English (EN)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">테마</label>
+              <select class="form-select">
+                <option>라이트</option>
+                <option>다크</option>
+                <option>시스템 설정 따름</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">자동 체크 주기</label>
+              <select class="form-select">
+                <option>10분마다</option>
+                <option>30분마다</option>
+                <option>1시간마다</option>
+                <option>수동</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-title">알림</div>
+            <div class="form-field">
+              <label class="form-label">데스크톱 알림</label>
+              <select class="form-select">
+                <option>새 커밋 발견 시 알림</option>
+                <option>릴리즈 노트 생성 완료 시만</option>
+                <option>알림 끄기</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">알림 소리</label>
+              <select class="form-select">
+                <option>기본 소리</option>
+                <option>소리 없음</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button class="btn-save" onclick="saveGlobalSettings()">전역 설정 저장</button>
+        </div>
       </div>
 
-    </div><!-- /main-area -->
-  </div><!-- /app-body -->
-</div><!-- /chrome -->
+      <!-- ADD REPO PAGE -->
+      <div class="page" id="page-addrepo">
+        <div class="add-wrapper">
+          <div class="add-card">
+            <div class="add-title">레포지토리 추가</div>
+            <div class="add-subtitle">새로운 GitLab 또는 GitHub 레포지토리를 추가합니다.</div>
+
+            <div class="form-field">
+              <label class="form-label">플랫폼 선택</label>
+              <div class="platform-select">
+                <div class="platform-option selected" onclick="selectPlatform(this, 'gitlab')">
+                  <div class="platform-icon">🦊</div>
+                  <div class="platform-name">GitLab</div>
+                </div>
+                <div class="platform-option" onclick="selectPlatform(this, 'github')">
+                  <div class="platform-icon">🐙</div>
+                  <div class="platform-name">GitHub</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">레포지토리 이름</label>
+              <input type="text" class="form-input" placeholder="예: my-project" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">레포지토리 URL</label>
+              <input type="text" class="form-input" placeholder="https://gitlab.com/username/repo" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">액세스 토큰</label>
+              <input type="password" class="form-input" placeholder="glpat-xxxxxxxxxxxx 또는 ghp_xxxxxxxxxxxx" />
+            </div>
+
+            <button class="btn-submit" onclick="submitAddRepo()">레포지토리 추가</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
 
 <script>
 // ===== STATE =====
-let currentRepo = 'shop';
-let currentRail = 'draft';
 let currentLang = 'ko';
+let currentTheme = 'light';
+let sidebarCollapsed = false;
+let currentRepo = 'shop-frontend';
+let currentTab = 'dashboard';
 
-const repoData = {
-  shop:   { name: 'shop-frontend',  platform: 'GitLab', version: 'v2.4.1', date: '2026.04.03 14:32', commit: 'a3f9e12' },
-  admin:  { name: 'admin-panel',    platform: 'GitHub', version: 'v1.9.3', date: '2026.04.02 09:15', commit: 'c4d5e6f' },
-  api:    { name: 'api-server',     platform: 'GitLab', version: 'v3.1.0', date: '2026.04.01 16:44', commit: 'd7e8f9a' },
-  mobile: { name: 'mobile-app',     platform: 'GitHub', version: 'v0.8.2', date: '2026.03.30 11:20', commit: 'e1f2a3b' },
-};
+// ===== SIDEBAR TOGGLE =====
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  const appBody = document.getElementById('appBody');
+  const toggleIcon = document.getElementById('toggleIcon');
 
-// ===== THEME =====
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  document.getElementById('thmBtn').textContent = isDark ? '🌙' : '☀️';
+  if (sidebarCollapsed) {
+    appBody.classList.add('collapsed');
+    toggleIcon.textContent = '›';
+  } else {
+    appBody.classList.remove('collapsed');
+    toggleIcon.textContent = '‹';
+  }
+
 }
-function setThemeFromSelect(sel) {
-  document.documentElement.setAttribute('data-theme', sel.value);
-  document.getElementById('thmBtn').textContent = sel.value === 'dark' ? '☀️' : '🌙';
+
+// ===== REPO SELECTION =====
+function selectRepo(repoId) {
+  currentRepo = repoId;
+
+  // Update active state
+  document.querySelectorAll('.repo-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  document.querySelector(`[data-repo="${repoId}"]`).classList.add('active');
+
+  // Show tabs
+  document.getElementById('mainTabs').classList.add('active');
+
+  // Switch to dashboard tab
+  switchTab('dashboard');
+
 }
 
-// ===== LANG =====
+// ===== TAB SWITCHING =====
+function switchTab(tabName) {
+  currentTab = tabName;
+
+  // Update tab buttons
+  document.querySelectorAll('.main-tab').forEach(tab => {
+    tab.classList.remove('on');
+  });
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add('on');
+
+  // Update pages
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.remove('active');
+  });
+  document.getElementById(`page-${tabName}`).classList.add('active');
+}
+
+// ===== RELEASE CARD EXPAND =====
+function toggleRelease(releaseId) {
+  const card = document.getElementById(releaseId);
+  card.classList.toggle('expanded');
+}
+
+function switchDetailTab(releaseId, lang) {
+  const card = document.getElementById(releaseId);
+
+  // Update tabs
+  card.querySelectorAll('.detail-tab').forEach(tab => {
+    tab.classList.remove('on');
+  });
+  card.querySelector(`[data-lang="${lang}"]`).classList.add('on');
+
+  // Update panes
+  card.querySelectorAll('.detail-pane').forEach(pane => {
+    pane.classList.remove('active');
+  });
+  card.querySelector(`[data-pane="${lang}"]`).classList.add('active');
+}
+
+// ===== NAVIGATION =====
+function showAddRepo() {
+  document.getElementById('mainTabs').classList.remove('active');
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.remove('active');
+  });
+  document.getElementById('page-addrepo').classList.add('active');
+
+  // Deselect all repos
+  document.querySelectorAll('.repo-item').forEach(item => {
+    item.classList.remove('active');
+  });
+}
+
+function showGlobalSettings() {
+  document.getElementById('mainTabs').classList.remove('active');
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.remove('active');
+  });
+  document.getElementById('page-global').classList.add('active');
+
+  // Deselect all repos
+  document.querySelectorAll('.repo-item').forEach(item => {
+    item.classList.remove('active');
+  });
+}
+
+// ===== PLATFORM SELECTION =====
+function selectPlatform(element, platform) {
+  document.querySelectorAll('.platform-option').forEach(opt => {
+    opt.classList.remove('selected');
+  });
+  element.classList.add('selected');
+}
+
+// ===== ACTIONS =====
+function refreshDashboard() {}
+
+function refreshReleases() {}
+
+function refreshGraph() {}
+
+function generateRelease() {
+  showToast('AI 요약 생성', '새로운 릴리즈 노트를 생성 중입니다...');
+}
+
+function copyToWorks() {
+  showToast('복사', 'Naver Works 형식으로 복사되었습니다.');
+}
+
+function saveMarkdown() {
+  showToast('저장', 'Markdown 파일로 저장되었습니다.');
+}
+
+function copyText() {
+  showToast('복사', '텍스트가 클립보드에 복사되었습니다.');
+}
+
+function publishRelease() {
+  showToast('발행', '릴리즈 노트가 발행되었습니다.');
+}
+
+function removeExcl(element) {
+  element.parentElement.remove();
+}
+
+function deleteRepo() {
+  openModal(
+    '레포지토리 삭제',
+    '이 레포지토리와 관련된 모든 초안 기록 및 설정이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',
+    () => {
+      showToast('삭제', '레포지토리가 삭제되었습니다.');
+      closeModal();
+    }
+  );
+}
+
+function saveSettings() {
+  showToast('저장', '레포 설정이 저장되었습니다.');
+}
+
+function saveGlobalSettings() {
+  showToast('저장', '전역 설정이 저장되었습니다.');
+}
+
+function submitAddRepo() {
+  showToast('추가', '레포지토리가 추가되었습니다.');
+  selectRepo('shop-frontend'); // Go back to first repo
+}
+
+// ===== LANGUAGE TOGGLE =====
 function setLang(lang) {
   currentLang = lang;
   document.getElementById('lngKo').classList.toggle('on', lang === 'ko');
   document.getElementById('lngEn').classList.toggle('on', lang === 'en');
 }
 
-// ===== RAIL =====
-function switchRail(rail) {
-  currentRail = rail;
-  ['draft','history','settings','add','global'].forEach(r => {
-    document.getElementById('page-' + r)?.classList.remove('active');
-    const btn = document.getElementById('rail-' + r);
-    if (btn) btn.classList.remove('on');
-  });
-  const page = document.getElementById('page-' + rail);
-  if (page) page.classList.add('active');
-  const btn = document.getElementById('rail-' + rail);
-  if (btn) btn.classList.add('on');
-
-  // Update window title
-  const titles = { draft:'초안 검토', history:'기록', settings:'레포 설정', add:'레포 추가', global:'전역 설정' };
-  document.getElementById('winTitle').textContent = 'UpdateNote — ' + (titles[rail] || '');
-}
-
-// ===== REPO SELECT =====
-function selectRepo(el, repo) {
-  document.querySelectorAll('.repo-item').forEach(r => r.classList.remove('active'));
-  el.classList.add('active');
-  currentRepo = repo;
-  const d = repoData[repo];
-
-  document.getElementById('draftTitle').textContent = d.name + ' / ' + d.version;
-  document.getElementById('draftMeta').innerHTML =
-    `<span>📅 ${d.date}</span><span>${d.platform === 'GitLab' ? '🦊' : '🐙'} ${d.platform}</span><span>commit: ${d.commit}</span>`;
-  document.getElementById('histTitle').textContent = d.name + ' 기록';
-  document.getElementById('setTitle').textContent = d.name + ' 설정';
-
-  toast('레포 전환', d.name + ' 초안을 불러왔습니다.', 'info');
-}
-
-// ===== TABS =====
-function switchTab(btn, tab) {
-  btn.closest('.tab-group').querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  btn.classList.add('on');
-  ['ko','en','diff'].forEach(t => {
-    const el = document.getElementById('content-' + t);
-    if (el) el.style.display = t === tab ? 'block' : 'none';
-  });
-}
-
-// ===== PUBLISH =====
-function publishWorks() {
-  const html = `<h2>v2.4.1 업데이트 안내</h2><ul><li>장바구니 오류 수정</li><li>영수증 PDF 다운로드 추가</li></ul>`;
-  navigator.clipboard.writeText(html).catch(() => {});
-  toast('Naver Works', 'HTML이 클립보드에 복사되었습니다. Works 에디터에 붙여넣기 하세요.', 'success');
-}
-function publishMd() {
-  const md = `# v2.4.1 업데이트 안내\n\n## 버그수정\n- 장바구니 오류 수정\n- 결제 버튼 모바일 표시 수정\n\n## 기능추가\n- 영수증 PDF 다운로드\n\n## UI변경\n- 필터 메뉴 디자인 개선`;
-  const blob = new Blob([md], { type: 'text/markdown' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'v2.4.1-update.md';
-  a.click();
-  toast('Markdown', 'v2.4.1-update.md 파일이 다운로드되었습니다.', 'success');
-}
-function publishTxt() {
-  const txt = `v2.4.1 업데이트 안내\n\n버그수정\n- 장바구니 오류 수정\n- 결제 버튼 모바일 표시 수정\n\n기능추가\n- 영수증 PDF 다운로드\n\nUI변경\n- 필터 메뉴 디자인 개선`;
-  navigator.clipboard.writeText(txt).catch(() => {});
-  toast('텍스트 복사', '텍스트가 클립보드에 복사되었습니다.', 'success');
-}
-function publishGo() {
-  toast('발행 완료', repoData[currentRepo].name + ' ' + repoData[currentRepo].version + ' 업데이트 노트가 발행되었습니다.', 'success');
-}
-
-// ===== HISTORY =====
-function openHistory(ver) {
-  toast('기록 열람', ver + ' 초안을 불러옵니다...', 'info');
-  setTimeout(() => {
-    repoData[currentRepo].version = ver;
-    document.getElementById('draftTitle').textContent = repoData[currentRepo].name + ' / ' + ver;
-    switchRail('draft');
-  }, 800);
-}
-
-// ===== TAGS =====
-function removeTag(x) {
-  x.closest('.etag').remove();
-  toast('제외 규칙', '패턴이 제거되었습니다.', 'info');
-}
-function addTag(type) {
-  const input = document.getElementById(type === 'path' ? 'pathInput' : 'extInput');
-  const val = input.value.trim();
-  if (!val) return;
-  const container = document.getElementById(type === 'path' ? 'pathTags' : 'extTags');
-  const span = document.createElement('span');
-  span.className = 'etag';
-  span.innerHTML = val + ' <span class="etag-x" onclick="removeTag(this)">✕</span>';
-  container.appendChild(span);
-  input.value = '';
-  toast('제외 규칙', '"' + val + '" 패턴이 추가되었습니다.', 'success');
-}
-
-// ===== DELETE =====
-function confirmDelete() {
-  openModal(
-    '레포지토리 삭제',
-    `"${repoData[currentRepo].name}" 레포지토리와 관련된 모든 초안 기록 및 설정이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.`,
-    () => {
-      toast('삭제 완료', repoData[currentRepo].name + ' 레포지토리가 삭제되었습니다.', 'alert');
-      closeModal();
-    }
-  );
-}
-
-// ===== SAVE =====
-function saveSettings() { toast('설정 저장', repoData[currentRepo].name + ' 설정이 저장되었습니다.', 'success'); }
-function saveGlobal() { toast('설정 저장', '전역 설정이 저장되었습니다.', 'success'); }
-
-// ===== ADD REPO =====
-function selOpt(el, group) {
-  el.closest('.opt-grid').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('on'));
-  el.classList.add('on');
-}
-function checkLangWarning(sel) {
-  document.getElementById('langWarning').style.display =
-    sel.value.includes('동시') ? 'block' : 'none';
-}
-function addRepo() {
-  const url = document.getElementById('addUrl').value.trim();
-  if (!url) { toast('오류', '저장소 URL을 입력해주세요.', 'alert'); return; }
-  const name = url.split('/').pop() || 'new-repo';
-  toast('레포 추가', '"' + name + '" 레포지토리가 추가되었습니다.', 'success');
-
-  const list = document.getElementById('repoList');
-  const item = document.createElement('div');
-  item.className = 'repo-item';
-  item.setAttribute('data-repo', name);
-  item.innerHTML = `<div class="repo-ico gh">🐙</div><div class="repo-info"><div class="repo-name">${name}</div><div class="repo-sub">GitHub</div></div>`;
-  item.onclick = () => selectRepo(item, name);
-  list.appendChild(item);
-  repoData[name] = { name, platform: 'GitHub', version: 'v0.0.1', date: '-', commit: '-' };
-  document.getElementById('addUrl').value = '';
-  switchRail('draft');
+// ===== THEME TOGGLE =====
+function toggleTheme() {
+  currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  document.getElementById('thmBtn').textContent = currentTheme === 'light' ? '🌙' : '☀️';
 }
 
 // ===== TOAST =====
-function toast(title, msg, type = 'info') {
-  const wrap = document.getElementById('toastWrap');
-  const el = document.createElement('div');
-  el.className = 'toast';
-  const colors = { success: 'var(--color-primary)', info: 'var(--color-info)', alert: 'var(--color-alert)', warning: 'var(--color-warning)' };
-  el.style.borderLeftColor = colors[type] || colors.info;
-  el.innerHTML = `<div class="toast-title" style="color:${colors[type]}">${title}</div>${msg}`;
-  wrap.appendChild(el);
-  setTimeout(() => el.remove(), 3200);
+function showToast(title, message) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `<div class="toast-title">${title}</div>${message}`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
 }
 
 // ===== MODAL =====
-let modalCb = null;
-function openModal(title, desc, cb) {
+function openModal(title, desc, onConfirm) {
   document.getElementById('modalTitle').textContent = title;
   document.getElementById('modalDesc').textContent = desc;
-  modalCb = cb;
-  document.getElementById('modal').classList.add('open');
-  document.getElementById('modalConfirm').onclick = cb;
+  document.getElementById('modalConfirm').onclick = onConfirm;
+  document.getElementById('modalOverlay').classList.add('open');
 }
+
 function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-  modalCb = null;
+  document.getElementById('modalOverlay').classList.remove('open');
 }
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeModal();
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeModal();
 });
+
+// ===== INIT =====
+console.log('Sosik Mockup v2 loaded');
 </script>
+
 </body>
 </html>
