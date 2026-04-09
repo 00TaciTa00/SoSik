@@ -1,8 +1,11 @@
 node_modules/
 dist/
+dist-electron/
 out/
 .env
 .env.*
+.env.local
+.env.*.local
 .claude/
 .omc/
 CLAUDE.md
@@ -12,5 +15,14 @@ electron-store/
 *.db
 *.db-shm
 *.db-wal
+*.sqlite
+*.sqlite3
 *.Identifier
 docs/
+logs/
+*.log
+npm-debug.log*
+*.tsbuildinfo
+coverage/
+.DS_Store
+Thumbs.db
