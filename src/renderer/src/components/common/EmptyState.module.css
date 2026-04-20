@@ -1,0 +1,33 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  height: 100%;
+}
+
+.icon {
+  font-size: 40px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.description {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+.action {
+  margin-top: 4px;
+}

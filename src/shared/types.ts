@@ -1,49 +1,66 @@
-/** 지원하는 git 플랫폼 */
 export type Platform = 'gitlab' | 'github'
 
-/** diff 추출 방식 */
 export type DiffSource = 'api' | 'local-git'
 
-/** AI 제공자 */
 export type AIProvider = 'claude' | 'openai'
 
-/** 요약 언어 */
-export type SummaryLanguage = 'ko' | 'en'
+export type SummaryLanguage = 'ko' | 'en' | 'both'
 
-/** 레포지토리 */
+export type SummaryStyle = 'detailed' | 'concise' | 'technical'
+
+export type ChangeType = 'bug_fix' | 'feature' | 'ui' | 'performance'
+
 export interface Repository {
-  id: number
+  id: string
   name: string
   platform: Platform
-  repoUrl: string
   diffSource: DiffSource
-  /** 액세스 토큰 (encrypted) */
-  accessToken: string
-  /** 보안 제외 파일 패턴 목록 (레포별 독립) */
-  excludePatterns: string[]
-  /** 요약 언어 (레포별 독립) */
+  repoUrl: string
+  localPath?: string
+  aiProvider: AIProvider
   summaryLanguage: SummaryLanguage
+  summaryStyle: SummaryStyle
+  baselineSha: string
+  displayOrder: number
   createdAt: string
   updatedAt: string
 }
 
-/** 릴리즈 노트 초안 */
+export interface SecurityExclusionRule {
+  id: number
+  repoId: string
+  pattern: string
+  createdAt: string
+}
+
 export interface ReleaseNote {
   id: number
-  repositoryId: number
-  title: string
-  content: string
-  fromRef: string
-  toRef: string
+  repoId: string
+  fromSha: string
+  toSha: string
+  versionTag?: string
+  rawDiff: string
+  aiDraftKo?: string
+  aiDraftEn?: string
+  editedKo?: string
+  editedEn?: string
+  changeTypes: ChangeType[]
   createdAt: string
   updatedAt: string
 }
 
-/** 전역 앱 설정 */
-export interface AppSettings {
-  aiProvider: AIProvider
-  /** AI API Key (encrypted) */
-  aiApiKey: string
-  /** Naver Works API Key (encrypted) */
+export interface GlobalSettings {
+  appLanguage: 'ko' | 'en'
+  appTheme: 'light' | 'dark'
+  startupLaunch: boolean
+  webhookEnabled: boolean
+  webhookPort: number
+}
+
+/** electron-store에 저장되는 민감 정보 (암호화) */
+export interface SecureStore {
+  claudeApiKey?: string
+  openaiApiKey?: string
   naverWorksApiKey?: string
+  webhookSecretToken?: string
 }

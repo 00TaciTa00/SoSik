@@ -1,0 +1,26 @@
+.tabBar {
+  display: flex;
+  gap: 2px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--color-bg-secondary);
+  background: var(--color-surface);
+}
+
+.tab {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.tab:hover {
+  color: var(--color-text-secondary);
+}
+
+.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
