@@ -18,7 +18,8 @@ electron-store/
 *.sqlite
 *.sqlite3
 *.Identifier
-docs/
+docs/chatLogs/
+!docs/review/
 logs/
 *.log
 npm-debug.log*
