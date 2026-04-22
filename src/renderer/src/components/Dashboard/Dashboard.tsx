@@ -5,7 +5,7 @@ import { Button } from '../common/Button'
 import { EmptyState } from '../common/EmptyState'
 import { useToast } from '../common/Toast'
 import { api } from '../../lib/api'
-import { PLATFORM_LABEL, DIFF_SOURCE_LABEL } from '../../../../../shared/constants'
+import { PLATFORM_LABEL, DIFF_SOURCE_LABEL } from '../../../../shared/constants'
 import styles from './Dashboard.module.css'
 
 export function Dashboard() {

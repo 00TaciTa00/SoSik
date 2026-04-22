@@ -5,7 +5,7 @@ import { Button } from '../common/Button'
 import { EmptyState } from '../common/EmptyState'
 import { useToast } from '../common/Toast'
 import { api } from '../../lib/api'
-import type { CommitInfo } from '../../../../../shared/types'
+import type { CommitInfo } from '../../../../shared/types'
 import styles from './GitGraph.module.css'
 
 export function GitGraph() {
