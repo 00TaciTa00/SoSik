@@ -1,22 +1,22 @@
 import { useState } from 'react'
 import { useApp } from '../../contexts/AppContext'
+import { useTranslation } from '../../i18n/useTranslation'
 import { Button } from '../common/Button'
 import { EmptyState } from '../common/EmptyState'
 import { useToast } from '../common/Toast'
 import { api } from '../../lib/api'
+import { PLATFORM_LABEL, DIFF_SOURCE_LABEL } from '../../../../../shared/constants'
 import styles from './Dashboard.module.css'
-
-const PLATFORM_LABEL: Record<string, string> = { gitlab: 'GitLab', github: 'GitHub' }
-const DIFF_SOURCE_LABEL: Record<string, string> = { api: 'REST API', 'local-git': '로컬 git' }
 
 export function Dashboard() {
   const { selectedRepo, releaseNotes, setReleaseNotes, updateRepo } = useApp()
   const { showToast } = useToast()
+  const t = useTranslation()
   const [checking, setChecking] = useState(false)
   const [generating, setGenerating] = useState(false)
 
   if (!selectedRepo) {
-    return <EmptyState icon="🌿" title="레포지토리를 선택해주세요" />
+    return <EmptyState icon="🌿" title={t.dashboard.selectRepo} />
   }
 
   const repoNotes = releaseNotes.filter((n) => n.repoId === selectedRepo.id)
@@ -30,12 +30,12 @@ export function Dashboard() {
     try {
       const result = await api.diff.check(selectedRepo!.id)
       if (result.hasNew) {
-        showToast(`${result.commitCount}개의 새 커밋이 있습니다`, 'success')
+        showToast(`${result.commitCount}${t.dashboard.hasNewCommits}`, 'success')
       } else {
-        showToast('새 커밋이 없습니다', 'info')
+        showToast(t.dashboard.noNewCommits, 'info')
       }
     } catch {
-      showToast('커밋 확인 중 오류가 발생했습니다', 'error')
+      showToast(t.dashboard.checkError, 'error')
     } finally {
       setChecking(false)
     }
@@ -50,20 +50,17 @@ export function Dashboard() {
   async function handleGenerate() {
     setGenerating(true)
     try {
-      // 1. diff 추출 + 보안 파일 제외 필터 적용
       const { diff, fromSha, toSha } = await api.diff.extract(selectedRepo!.id)
       if (!diff.trim()) {
-        showToast('추출된 diff가 없습니다. 새 커밋이 없거나 모두 보안 파일일 수 있습니다.', 'info')
+        showToast(t.dashboard.noDiff, 'info')
         return
       }
 
-      // 2. AI 요약 생성 → DB 저장 → baselineSha 업데이트
       const note = await api.ai.generate(selectedRepo!.id, diff, fromSha, toSha)
 
-      // 3. Context에 새 노트 추가 및 baselineSha 동기화
       setReleaseNotes([note, ...releaseNotes])
       updateRepo(selectedRepo!.id, { baselineSha: toSha })
-      showToast('업데이트 노트가 생성되었습니다', 'success')
+      showToast(t.dashboard.noteGenerated, 'success')
     } catch (err) {
       const msg = err instanceof Error ? err.message : '오류가 발생했습니다'
       showToast(msg, 'error')
@@ -76,7 +73,7 @@ export function Dashboard() {
 
   function copyWebhookUrl() {
     navigator.clipboard.writeText(webhookUrl)
-    showToast('웹훅 URL이 복사되었습니다', 'success')
+    showToast(t.dashboard.webhookCopied, 'success')
   }
 
   return (
@@ -91,22 +88,22 @@ export function Dashboard() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Button onClick={handleCheck} loading={checking} variant="secondary">
-            새 커밋 확인
+            {t.dashboard.checkCommits}
           </Button>
           <Button onClick={handleGenerate} loading={generating} variant="primary">
-            업데이트 노트 생성
+            {t.dashboard.generateNote}
           </Button>
         </div>
       </div>
 
       <div className={styles.cards}>
         <div className={styles.card}>
-          <span className={styles.cardLabel}>저장소 URL</span>
+          <span className={styles.cardLabel}>{t.dashboard.repoUrl}</span>
           <span className={styles.cardValue}>{selectedRepo.repoUrl}</span>
         </div>
 
         <div className={styles.card}>
-          <span className={styles.cardLabel}>마지막 릴리즈 노트</span>
+          <span className={styles.cardLabel}>{t.dashboard.lastNote}</span>
           <span className={styles.cardValue}>
             {lastNote
               ? new Date(lastNote.createdAt).toLocaleDateString('ko-KR', {
@@ -114,17 +111,19 @@ export function Dashboard() {
                   month: 'long',
                   day: 'numeric',
                 })
-              : '아직 없음'}
+              : t.dashboard.noNoteYet}
           </span>
         </div>
 
         <div className={styles.card}>
-          <span className={styles.cardLabel}>릴리즈 노트 수</span>
-          <span className={styles.cardValue}>{repoNotes.length}개</span>
+          <span className={styles.cardLabel}>{t.dashboard.noteCount}</span>
+          <span className={styles.cardValue}>
+            {repoNotes.length}{t.dashboard.noteCountUnit}
+          </span>
         </div>
 
         <div className={styles.card}>
-          <span className={styles.cardLabel}>AI 요약 언어</span>
+          <span className={styles.cardLabel}>{t.dashboard.aiLanguage}</span>
           <span className={styles.cardValue}>
             {selectedRepo.summaryLanguage === 'ko'
               ? '한국어'
@@ -136,14 +135,12 @@ export function Dashboard() {
       </div>
 
       <div className={styles.webhookSection}>
-        <h3 className={styles.sectionTitle}>웹훅 설정</h3>
-        <p className={styles.sectionDesc}>
-          아래 URL을 GitLab/GitHub 웹훅에 등록하면 배포 시 자동으로 감지합니다.
-        </p>
+        <h3 className={styles.sectionTitle}>{t.dashboard.webhookTitle}</h3>
+        <p className={styles.sectionDesc}>{t.dashboard.webhookDesc}</p>
         <div className={styles.webhookUrl}>
           <code className={styles.urlText}>{webhookUrl}</code>
           <Button size="sm" variant="secondary" onClick={copyWebhookUrl}>
-            복사
+            {t.common.copy}
           </Button>
         </div>
       </div>

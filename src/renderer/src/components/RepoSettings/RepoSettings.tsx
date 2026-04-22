@@ -6,10 +6,8 @@ import { EmptyState } from '../common/EmptyState'
 import { useToast } from '../common/Toast'
 import { api } from '../../lib/api'
 import type { AIProvider, SummaryLanguage, SummaryStyle, SecurityExclusionRule } from '../../../../shared/types'
+import { PLATFORM_LABEL, DIFF_SOURCE_LABEL } from '../../../../shared/constants'
 import styles from './RepoSettings.module.css'
-
-const PLATFORM_LABEL: Record<string, string> = { gitlab: 'GitLab', github: 'GitHub' }
-const DIFF_SOURCE_LABEL: Record<string, string> = { api: 'REST API', 'local-git': '로컬 git' }
 
 export function RepoSettings() {
   const { selectedRepo, updateRepo, deleteRepo } = useApp()
