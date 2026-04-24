@@ -28,6 +28,7 @@ export function RepoSettings() {
       setAiProvider(selectedRepo.aiProvider)
       setSummaryLanguage(selectedRepo.summaryLanguage)
       setSummaryStyle(selectedRepo.summaryStyle)
+      setTokenSaved(false)
       // 레포 변경 시 보안 규칙 새로 로드
       api.securityRule.getByRepo(selectedRepo.id).then(setSecurityRules)
     }
@@ -56,6 +57,7 @@ export function RepoSettings() {
     try {
       await api.secure.setApiKey(`repo:${selectedRepo!.id}:access_token`, accessToken.trim())
       setAccessToken('')
+      setTokenSaved(true)
       showToast('액세스 토큰이 저장되었습니다', 'success')
     } catch {
       showToast('액세스 토큰 저장에 실패했습니다', 'error')
@@ -122,14 +124,15 @@ export function RepoSettings() {
           <input
             type="password"
             value={accessToken}
-            onChange={(e) => setAccessToken(e.target.value)}
-            placeholder="새 토큰 입력..."
+            onChange={(e) => { setAccessToken(e.target.value); setTokenSaved(false) }}
+            placeholder={tokenSaved ? '••••••••••••' : '새 토큰 입력...'}
             className={styles.input}
             autoComplete="off"
           />
           <Button variant="secondary" size="sm" onClick={handleSaveToken} disabled={!accessToken.trim()}>
             저장
           </Button>
+          {tokenSaved && <span className={styles.savedIndicator}>✓ 저장됨</span>}
         </div>
       </section>
 

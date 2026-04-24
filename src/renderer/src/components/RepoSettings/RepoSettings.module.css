@@ -142,3 +142,9 @@
   justify-content: flex-end;
   gap: 8px;
 }
+
+.savedIndicator {
+  font-size: 12px;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
