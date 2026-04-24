@@ -19,13 +19,32 @@ export function RepoAddModal({ isOpen, onClose, onAdd }: RepoAddModalProps) {
   const [platform, setPlatform] = useState<Platform>('gitlab')
   const [diffSource, setDiffSource] = useState<DiffSource>('api')
   const [repoUrl, setRepoUrl] = useState('')
+  const [urlError, setUrlError] = useState('')
   const [localPath, setLocalPath] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [saving, setSaving] = useState(false)
 
+  const repoUrlPlaceholder =
+    platform === 'github'
+      ? 'https://github.com/myorg/myrepo'
+      : 'https://gitlab.com/myorg/myrepo'
+
+  const diffSourceHint =
+    diffSource === 'api'
+      ? 'GitLab/GitHub REST API로 diff를 추출합니다'
+      : 'PC에 clone된 로컬 경로에서 직접 추출합니다'
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim() || !repoUrl.trim()) return
+    if (!name.trim()) return
+    if (diffSource === 'api') {
+      if (!repoUrl.trim()) return
+      if (!repoUrl.trim().startsWith('http')) {
+        setUrlError('https://로 시작하는 URL을 입력해주세요')
+        return
+      }
+    }
+    if (diffSource === 'local-git' && !localPath.trim()) return
 
     setSaving(true)
     try {
@@ -35,7 +54,7 @@ export function RepoAddModal({ isOpen, onClose, onAdd }: RepoAddModalProps) {
         name: name.trim(),
         platform,
         diffSource,
-        repoUrl: repoUrl.trim(),
+        repoUrl: diffSource === 'api' ? repoUrl.trim() : '',
         localPath: diffSource === 'local-git' ? localPath.trim() || undefined : undefined,
         aiProvider: 'claude',
         summaryLanguage: 'ko',
@@ -67,6 +86,7 @@ export function RepoAddModal({ isOpen, onClose, onAdd }: RepoAddModalProps) {
     setPlatform('gitlab')
     setDiffSource('api')
     setRepoUrl('')
+    setUrlError('')
     setLocalPath('')
     setAccessToken('')
   }
@@ -75,6 +95,11 @@ export function RepoAddModal({ isOpen, onClose, onAdd }: RepoAddModalProps) {
     resetForm()
     onClose()
   }
+
+  const isSubmitDisabled =
+    !name.trim() ||
+    (diffSource === 'api' && !repoUrl.trim()) ||
+    (diffSource === 'local-git' && !localPath.trim())
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="레포지토리 추가">
@@ -91,47 +116,50 @@ export function RepoAddModal({ isOpen, onClose, onAdd }: RepoAddModalProps) {
           />
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label className={styles.label}>플랫폼</label>
-            <select
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value as Platform)}
-              className={styles.input}
-            >
-              <option value="gitlab">GitLab</option>
-              <option value="github">GitHub</option>
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label}>Diff 소스</label>
-            <select
-              value={diffSource}
-              onChange={(e) => setDiffSource(e.target.value as DiffSource)}
-              className={styles.input}
-            >
-              <option value="api">API 방식</option>
-              <option value="local-git">로컬 git</option>
-            </select>
-          </div>
-        </div>
-
         <div className={styles.field}>
-          <label className={styles.label}>저장소 URL *</label>
-          <input
-            type="text"
-            value={repoUrl}
-            onChange={(e) => setRepoUrl(e.target.value)}
-            placeholder="https://gitlab.com/example/repo"
+          <label className={styles.label}>Diff 소스</label>
+          <select
+            value={diffSource}
+            onChange={(e) => setDiffSource(e.target.value as DiffSource)}
             className={styles.input}
-            required
-          />
+          >
+            <option value="api">API 방식</option>
+            <option value="local-git">로컬 git</option>
+          </select>
+          <p className={styles.hint}>{diffSourceHint}</p>
         </div>
+
+        {diffSource === 'api' && (
+          <>
+            <div className={styles.field}>
+              <label className={styles.label}>플랫폼</label>
+              <select
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value as Platform)}
+                className={styles.input}
+              >
+                <option value="gitlab">GitLab</option>
+                <option value="github">GitHub</option>
+              </select>
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>저장소 URL *</label>
+              <input
+                type="text"
+                value={repoUrl}
+                onChange={(e) => { setRepoUrl(e.target.value); setUrlError('') }}
+                placeholder={repoUrlPlaceholder}
+                className={styles.input}
+              />
+              {urlError && <p className={styles.fieldError}>{urlError}</p>}
+            </div>
+          </>
+        )}
 
         {diffSource === 'local-git' && (
           <div className={styles.field}>
-            <label className={styles.label}>로컬 경로</label>
+            <label className={styles.label}>로컬 경로 *</label>
             <input
               type="text"
               value={localPath}
@@ -162,7 +190,7 @@ export function RepoAddModal({ isOpen, onClose, onAdd }: RepoAddModalProps) {
           <Button
             type="submit"
             variant="primary"
-            disabled={!name.trim() || !repoUrl.trim()}
+            disabled={isSubmitDisabled}
             loading={saving}
           >
             추가

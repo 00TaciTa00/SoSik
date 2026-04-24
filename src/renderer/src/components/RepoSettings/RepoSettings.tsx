@@ -18,6 +18,7 @@ export function RepoSettings() {
   const [summaryLanguage, setSummaryLanguage] = useState<SummaryLanguage>('ko')
   const [summaryStyle, setSummaryStyle] = useState<SummaryStyle>('detailed')
   const [accessToken, setAccessToken] = useState('')
+  const [tokenSaved, setTokenSaved] = useState(false)
   const [newPattern, setNewPattern] = useState('')
   // 보안 규칙은 DB에서 로드 (메모리가 아닌 영구 저장)
   const [securityRules, setSecurityRules] = useState<SecurityExclusionRule[]>([])

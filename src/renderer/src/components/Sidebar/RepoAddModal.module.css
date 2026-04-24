@@ -33,6 +33,11 @@
   color: var(--color-text-muted);
 }
 
+.fieldError {
+  font-size: 11px;
+  color: var(--color-alert);
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
