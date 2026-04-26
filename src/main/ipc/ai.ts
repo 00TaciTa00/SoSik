@@ -17,6 +17,7 @@ import { getSecureKey } from '../secure'
 import { createAIProvider } from '../../ai/provider'
 import { logger } from '../../shared/logger'
 import { AIError } from '../../shared/error'
+import { assertNonEmptyString } from './validate'
 
 export function registerAIHandlers(): void {
   /**
@@ -30,7 +31,11 @@ export function registerAIHandlers(): void {
    */
   ipcMain.handle(
     'ai:generate',
-    async (_event, repoId: string, diff: string, fromSha: string, toSha: string) => {
+    async (_event, repoId: unknown, diff: unknown, fromSha: unknown, toSha: unknown) => {
+      assertNonEmptyString(repoId, 'repoId')
+      assertNonEmptyString(diff, 'diff')
+      assertNonEmptyString(fromSha, 'fromSha')
+      assertNonEmptyString(toSha, 'toSha')
       logger.info('IPC ai:generate 시작', { repoId, diffLen: diff.length })
 
       const repo = getRepoById(repoId)

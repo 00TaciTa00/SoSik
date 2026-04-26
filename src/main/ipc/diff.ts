@@ -7,6 +7,15 @@
  *   diff:extract       diff 추출 + 보안 필터 적용 → AI 입력 준비
  */
 
+/**
+ * diff 관련 IPC 핸들러
+ *
+ * 채널 목록:
+ *   diff:check         새 커밋 유무 확인 (빠름 — diff 미추출)
+ *   diff:get-commits   커밋 목록 조회 (GitGraph 표시용)
+ *   diff:extract       diff 추출 + 보안 필터 적용 → AI 입력 준비
+ */
+
 import { ipcMain } from 'electron'
 import { getRepoById } from '../../db/repository'
 import { getPatternsByRepo } from '../../db/securityRule'
@@ -14,6 +23,7 @@ import { getSecureKey } from '../secure'
 import { checkNewCommits, getCommits, extractDiff } from '../../diff/extractor'
 import { logger } from '../../shared/logger'
 import { DiffError } from '../../shared/error'
+import { assertNonEmptyString } from './validate'
 
 export function registerDiffHandlers(): void {
   /**
@@ -21,7 +31,8 @@ export function registerDiffHandlers(): void {
    * 새 커밋 유무만 확인합니다. diff를 가져오지 않으므로 빠릅니다.
    * Dashboard "새 커밋 확인" 버튼에서 사용합니다.
    */
-  ipcMain.handle('diff:check', async (_event, repoId: string) => {
+  ipcMain.handle('diff:check', async (_event, repoId: unknown) => {
+    assertNonEmptyString(repoId, 'repoId')
     logger.debug('IPC diff:check', { repoId })
     const repo = getRepoById(repoId)
     if (!repo) throw new DiffError(`레포를 찾을 수 없습니다: ${repoId}`)
@@ -34,7 +45,8 @@ export function registerDiffHandlers(): void {
    * baselineSha 이후 커밋 목록을 반환합니다.
    * GitGraph 탭에서 커밋 내역을 표시할 때 사용합니다.
    */
-  ipcMain.handle('diff:get-commits', async (_event, repoId: string) => {
+  ipcMain.handle('diff:get-commits', async (_event, repoId: unknown) => {
+    assertNonEmptyString(repoId, 'repoId')
     logger.debug('IPC diff:get-commits', { repoId })
     const repo = getRepoById(repoId)
     if (!repo) throw new DiffError(`레포를 찾을 수 없습니다: ${repoId}`)
@@ -48,7 +60,8 @@ export function registerDiffHandlers(): void {
    * 반환값: { diff, fromSha, toSha }
    * 이후 ai:generate에 diff를 전달하여 릴리즈 노트를 생성합니다.
    */
-  ipcMain.handle('diff:extract', async (_event, repoId: string) => {
+  ipcMain.handle('diff:extract', async (_event, repoId: unknown) => {
+    assertNonEmptyString(repoId, 'repoId')
     logger.info('IPC diff:extract 시작', { repoId })
     const repo = getRepoById(repoId)
     if (!repo) throw new DiffError(`레포를 찾을 수 없습니다: ${repoId}`)

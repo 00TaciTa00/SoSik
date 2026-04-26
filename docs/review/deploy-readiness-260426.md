@@ -10,7 +10,7 @@
 | 배포 준비도 | **90/100** |
 | 현재 단계 | 기능 완성 단계 |
 | CRITICAL | 0건 (이번 세션 해결) |
-| HIGH | 1건 |
+| HIGH | 0건 (이번 세션 해결) |
 | MEDIUM | 3건 |
 | LOW | 4건 |
 
@@ -62,19 +62,12 @@
 - **영향**: Naver Works에 붙여넣기 시 마크업이 텍스트로 표시됨
 - **해결**: `ClipboardItem`으로 `text/html` MIME 타입 복사 구현 + `markdownToNaverWorks` 줄 단위 처리로 재작성 (`<br>` 내부 삽입 방지)
 
-### H-2. IPC 핸들러 입력 검증 부재
+### ~~H-2. IPC 핸들러 입력 검증 부재~~ ✅ 해결
 
 - **위치**: `src/main/ipc/` 전체
 - **문제**: 핸들러가 렌더러에서 온 매개변수를 타입만 신뢰하고 런타임 검증 없음
 - **영향**: `repo:add`에 잘못된 `platform` 값 전달 시 DB CHECK 제약 위반으로 unhandled error
-- **수정**: 핸들러 진입 시점에 열거형 값 범위 검증 추가
-
-```typescript
-const VALID_PLATFORMS = ['gitlab', 'github'] as const
-if (!VALID_PLATFORMS.includes(payload.platform)) {
-  throw new IPCError(`유효하지 않은 platform: ${payload.platform}`)
-}
-```
+- **해결**: `src/main/ipc/validate.ts` 중앙 검증 모듈 생성 — 열거형·비어있는 문자열·숫자 범위·secure key 패턴을 `IPCError`로 단언. 모든 17개 핸들러에 적용
 
 ---
 
@@ -154,7 +147,7 @@ if (!VALID_PLATFORMS.includes(payload.platform)) {
 [ ] Windows/macOS 빌드 성공 확인
 
 권장
-[ ] IPC 핸들러 입력 검증 추가 (src/main/ipc/)
+[x] IPC 핸들러 입력 검증 추가 (src/main/ipc/)
 [x] Naver Works HTML 복사 수정
 [ ] 핵심 모듈 단위 테스트 최소 3건 작성
 
