@@ -14,6 +14,9 @@ import { AIError } from '../shared/error'
 import { logger } from '../shared/logger'
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
+// Anthropic은 주요 변경 시에만 새 버전을 발급합니다 (날짜 롤링 아님).
+// '2023-06-01'은 현재 공식 문서의 유일한 stable 버전입니다.
+// 업데이트가 필요한 경우: https://docs.anthropic.com/en/api/versioning
 const ANTHROPIC_VERSION = '2023-06-01'
 // 속도/품질/비용 균형: claude-sonnet-4-6
 // 고품질 원할 시 claude-opus-4-7로 변경 가능

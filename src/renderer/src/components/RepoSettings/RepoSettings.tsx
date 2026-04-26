@@ -19,6 +19,9 @@ export function RepoSettings() {
   const [summaryStyle, setSummaryStyle] = useState<SummaryStyle>('detailed')
   const [accessToken, setAccessToken] = useState('')
   const [tokenSaved, setTokenSaved] = useState(false)
+  const [webhookSecret, setWebhookSecret] = useState('')
+  const [webhookSecretSaved, setWebhookSecretSaved] = useState(false)
+  const [hasWebhookSecret, setHasWebhookSecret] = useState(false)
   const [newPattern, setNewPattern] = useState('')
   // 보안 규칙은 DB에서 로드 (메모리가 아닌 영구 저장)
   const [securityRules, setSecurityRules] = useState<SecurityExclusionRule[]>([])
@@ -29,6 +32,11 @@ export function RepoSettings() {
       setSummaryLanguage(selectedRepo.summaryLanguage)
       setSummaryStyle(selectedRepo.summaryStyle)
       setTokenSaved(false)
+      setWebhookSecretSaved(false)
+      // 웹훅 비밀 토큰 존재 여부 확인 (값 자체는 표시하지 않음)
+      api.secure.getApiKey(`repo:${selectedRepo.id}:webhook_secret`).then((v) =>
+        setHasWebhookSecret(!!v)
+      )
       // 레포 변경 시 보안 규칙 새로 로드
       api.securityRule.getByRepo(selectedRepo.id).then(setSecurityRules)
     }
@@ -61,6 +69,20 @@ export function RepoSettings() {
       showToast('액세스 토큰이 저장되었습니다', 'success')
     } catch {
       showToast('액세스 토큰 저장에 실패했습니다', 'error')
+    }
+  }
+
+  /** 웹훅 비밀 토큰을 암호화 저장소에 저장합니다 */
+  async function handleSaveWebhookSecret() {
+    if (!webhookSecret.trim()) return
+    try {
+      await api.secure.setApiKey(`repo:${selectedRepo!.id}:webhook_secret`, webhookSecret.trim())
+      setWebhookSecret('')
+      setWebhookSecretSaved(true)
+      setHasWebhookSecret(true)
+      showToast('웹훅 비밀 토큰이 저장되었습니다', 'success')
+    } catch {
+      showToast('웹훅 비밀 토큰 저장에 실패했습니다', 'error')
     }
   }
 
@@ -133,6 +155,30 @@ export function RepoSettings() {
             저장
           </Button>
           {tokenSaved && <span className={styles.savedIndicator}>✓ 저장됨</span>}
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>웹훅 비밀 토큰</h3>
+        <p className={styles.sectionDesc}>
+          GitLab/GitHub 웹훅에 설정한 비밀 토큰입니다. 입력 시 수신된 웹훅의 서명을 검증합니다.
+          {hasWebhookSecret && !webhookSecretSaved && (
+            <span className={styles.savedIndicator}> ✓ 설정됨</span>
+          )}
+        </p>
+        <div className={styles.row}>
+          <input
+            type="password"
+            value={webhookSecret}
+            onChange={(e) => { setWebhookSecret(e.target.value); setWebhookSecretSaved(false) }}
+            placeholder={hasWebhookSecret ? '새 토큰으로 교체하려면 입력...' : '비밀 토큰 입력...'}
+            className={styles.input}
+            autoComplete="off"
+          />
+          <Button variant="secondary" size="sm" onClick={handleSaveWebhookSecret} disabled={!webhookSecret.trim()}>
+            저장
+          </Button>
+          {webhookSecretSaved && <span className={styles.savedIndicator}>✓ 저장됨</span>}
         </div>
       </section>
 

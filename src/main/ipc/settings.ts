@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron'
 import { getSettings, updateSettings } from '../../db/settings'
-import type { GlobalSettings } from '../../shared/types'
 import { logger } from '../../shared/logger'
+import { validateSettingsPatch } from './validate'
 
 export function registerSettingsHandlers(): void {
   ipcMain.handle('settings:get', () => {
@@ -9,7 +9,8 @@ export function registerSettingsHandlers(): void {
     return getSettings()
   })
 
-  ipcMain.handle('settings:update', (_event, patch: Partial<GlobalSettings>) => {
+  ipcMain.handle('settings:update', (_event, patch: unknown) => {
+    validateSettingsPatch(patch)
     logger.debug('IPC settings:update')
     updateSettings(patch)
   })

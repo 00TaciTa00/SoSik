@@ -23,6 +23,7 @@ const ALLOWED_CHANNELS = [
   'secure:get-api-key',
   'secure:set-api-key',
   // diff 추출
+  'diff:get-head-sha',
   'diff:check',
   'diff:get-commits',
   'diff:extract',

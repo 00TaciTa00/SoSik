@@ -48,6 +48,9 @@ export const api = {
   },
 
   diff: {
+    /** 현재 HEAD SHA 조회 (레포 등록 시 baselineSha 초기화용) */
+    getHeadSha: (repoId: string): Promise<string> =>
+      invoke('diff:get-head-sha', repoId),
     /** 새 커밋 유무 확인 (diff 미추출 — 빠름) */
     check: (repoId: string): Promise<{ hasNew: boolean; commitCount: number }> =>
       invoke('diff:check', repoId),

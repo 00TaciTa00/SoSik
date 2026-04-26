@@ -48,18 +48,41 @@ function markdownToText(md: string): string {
 /**
  * 마크다운 → Naver Works HTML 변환
  *
+ * 줄 단위로 처리하여 <ul> 내부에 <br>이 끼어드는 문제를 방지합니다.
  * navigator.clipboard.write() + ClipboardItem('text/html')으로 복사합니다.
  */
 function markdownToNaverWorks(md: string): string {
-  return md
-    .replace(/^#{1,2}\s+(.*)/gm, '<h2>$1</h2>')
-    .replace(/^#{3,6}\s+(.*)/gm, '<h3>$1</h3>')
-    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-    .replace(/\*(.*?)\*/g, '<i>$1</i>')
-    .replace(/^[-*+]\s+(.*)/gm, '<li>$1</li>')
-    // 연속된 <li> 블록 전체를 <ul>로 감싸기
-    .replace(/(<li>[^\n]*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`)
-    .replace(/\n/g, '<br>')
+  const lines = md.split('\n')
+  const parts: string[] = []
+  let listItems: string[] = []
+
+  function flushList() {
+    if (listItems.length > 0) {
+      parts.push(`<ul>${listItems.join('')}</ul>`)
+      listItems = []
+    }
+  }
+
+  for (const line of lines) {
+    const listMatch = line.match(/^[-*+]\s+(.*)/)
+    if (listMatch) {
+      const item = (listMatch[1] ?? '')
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/\*(.*?)\*/g, '<i>$1</i>')
+      listItems.push(`<li>${item}</li>`)
+    } else {
+      flushList()
+      const transformed = line
+        .replace(/^#{1,2}\s+(.*)/, '<h2>$1</h2>')
+        .replace(/^#{3,6}\s+(.*)/, '<h3>$1</h3>')
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/\*(.*?)\*/g, '<i>$1</i>')
+      parts.push(transformed)
+    }
+  }
+  flushList()
+
+  return parts.join('<br>')
 }
 
 export function ReleaseNoteDetail({ note, repo, onBack }: ReleaseNoteDetailProps) {
