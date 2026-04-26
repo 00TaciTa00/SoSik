@@ -68,6 +68,20 @@ function compareUrl(owner: string, repo: string, baseSha: string): string {
   return `https://api.github.com/repos/${owner}/${repo}/compare/${baseSha}...HEAD`
 }
 
+/** HEAD 커밋 단건 응답 타입 */
+interface GitHubCommitSingleResponse {
+  sha: string
+}
+
+/** 현재 HEAD 커밋의 SHA를 반환합니다 (레포 등록 시 baselineSha 초기화용) */
+export async function getHeadShaGitHub(repoUrl: string, token: string): Promise<string> {
+  const { owner, repo } = parseGitHubUrl(repoUrl)
+  const url = `https://api.github.com/repos/${owner}/${repo}/commits/HEAD`
+  const data = await githubFetch<GitHubCommitSingleResponse>(url, token)
+  if (!data.sha) throw new DiffError('HEAD SHA를 가져올 수 없습니다 — 레포가 비어 있거나 토큰 권한이 없습니다', repoUrl)
+  return data.sha
+}
+
 /** baselineSha 이후 새 커밋 수를 확인합니다 */
 export async function checkNewCommitsGitHub(
   repoUrl: string,

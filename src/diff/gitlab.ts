@@ -63,6 +63,17 @@ function compareUrl(host: string, encodedPath: string, fromSha: string): string 
   return `${host}/api/v4/projects/${encodedPath}/repository/compare?from=${fromSha}&to=HEAD&straight=false`
 }
 
+/** 현재 HEAD 커밋의 SHA를 반환합니다 (레포 등록 시 baselineSha 초기화용) */
+export async function getHeadShaGitLab(repoUrl: string, token: string): Promise<string> {
+  const { host, projectPath } = parseGitLabUrl(repoUrl)
+  const encoded = encodeURIComponent(projectPath)
+  const url = `${host}/api/v4/projects/${encoded}/repository/commits?per_page=1`
+  const data = await gitlabFetch<GitLabCommit[]>(url, token)
+  const sha = data[0]?.id
+  if (!sha) throw new DiffError('HEAD SHA를 가져올 수 없습니다 — 레포가 비어 있거나 토큰 권한이 없습니다', repoUrl)
+  return sha
+}
+
 /** baselineSha 이후 새 커밋 수를 확인합니다 */
 export async function checkNewCommitsGitLab(
   repoUrl: string,

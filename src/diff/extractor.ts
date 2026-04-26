@@ -11,9 +11,9 @@
 
 import type { Repository } from '../shared/types'
 import { applySecurityFilter } from './securityFilter'
-import { checkNewCommitsGitLab, getCommitListGitLab, getDiffGitLab } from './gitlab'
-import { checkNewCommitsGitHub, getCommitListGitHub, getDiffGitHub } from './github'
-import { countNewCommits, getCommitList, getDiff, getHeadSha } from './localGit'
+import { checkNewCommitsGitLab, getCommitListGitLab, getDiffGitLab, getHeadShaGitLab } from './gitlab'
+import { checkNewCommitsGitHub, getCommitListGitHub, getDiffGitHub, getHeadShaGitHub } from './github'
+import { countNewCommits, getCommitList, getDiff, getHeadSha as getLocalHeadSha } from './localGit'
 import { DiffError } from '../shared/error'
 
 /** diff:get-commits IPC 응답 형식 */
@@ -29,6 +29,22 @@ export type DiffResult = {
   diff: string    // 보안 필터 적용 후 diff 텍스트
   fromSha: string // 이전 기준 SHA (baselineSha)
   toSha: string   // 새 기준 SHA (이 값으로 baselineSha를 업데이트)
+}
+
+/**
+ * 현재 HEAD 커밋의 SHA를 반환합니다.
+ *
+ * 레포 등록 직후 baselineSha를 초기화할 때 사용합니다.
+ * 실패해도 레포 등록 자체가 취소되지 않도록 호출부에서 try/catch로 감싸세요.
+ */
+export async function getHeadSha(repo: Repository, accessToken: string): Promise<string> {
+  if (repo.diffSource === 'local-git') {
+    if (!repo.localPath) throw new DiffError('로컬 git 경로(localPath)가 설정되지 않았습니다', repo.repoUrl)
+    return getLocalHeadSha(repo.localPath)
+  }
+  return repo.platform === 'gitlab'
+    ? getHeadShaGitLab(repo.repoUrl, accessToken)
+    : getHeadShaGitHub(repo.repoUrl, accessToken)
 }
 
 /**
@@ -98,7 +114,7 @@ export async function extractDiff(
     if (!repo.localPath) throw new DiffError('로컬 git 경로(localPath)가 설정되지 않았습니다', repo.repoUrl)
     rawDiff = getDiff(repo.localPath, repo.baselineSha)
     fromSha = repo.baselineSha
-    toSha = getHeadSha(repo.localPath)
+    toSha = getLocalHeadSha(repo.localPath)
   } else if (repo.platform === 'gitlab') {
     const result = await getDiffGitLab(repo.repoUrl, repo.baselineSha, accessToken)
     rawDiff = result.diff

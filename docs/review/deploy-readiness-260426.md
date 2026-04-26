@@ -11,7 +11,7 @@
 | 현재 단계 | 기능 완성 단계 |
 | CRITICAL | 0건 (이번 세션 해결) |
 | HIGH | 0건 (이번 세션 해결) |
-| MEDIUM | 3건 |
+| MEDIUM | 2건 |
 | LOW | 4건 |
 
 > 2026-04-21 리뷰의 모든 CRITICAL/HIGH 이슈가 해결됨.  
@@ -82,11 +82,11 @@
   - `src/ai/claude.ts` — 프롬프트 생성, 응답 JSON 파싱
   - `src/db/repository.ts` — CRUD 정확성
 
-### M-2. baselineSha 초기 값 미설정
+### ~~M-2. baselineSha 초기 값 미설정~~ ✅ 해결
 
 - **위치**: `src/renderer/src/components/Sidebar/RepoAddModal.tsx`
 - **문제**: 레포 등록 시 `baselineSha: ''`로 저장 → 첫 웹훅 수신 시 processWebhook이 조용히 종료됨
-- **수정**: 등록 시 플랫폼 API로 HEAD SHA 조회 후 자동 설정, 또는 UI에서 직접 입력 필드 제공
+- **해결**: `diff:get-head-sha` IPC 채널 추가 — 레포 저장 직후 플랫폼 API(GitLab·GitHub·로컬 git)로 HEAD SHA 조회 후 자동 설정. 조회 실패 시 레포 등록은 유지하고 warning 토스트 표시
 
 ### M-3. CLAUDE.md 구현 현황 미갱신
 

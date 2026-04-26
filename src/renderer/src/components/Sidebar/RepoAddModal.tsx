@@ -71,7 +71,18 @@ export function RepoAddModal({ isOpen, onClose, onAdd }: RepoAddModalProps) {
         await api.secure.setApiKey(`repo:${saved.id}:access_token`, accessToken.trim())
       }
 
-      onAdd(saved)
+      // 레포 등록 직후 HEAD SHA를 조회해 baselineSha를 초기화합니다.
+      // 실패해도 레포 등록은 유지하고 경고만 표시합니다.
+      let finalRepo = saved
+      try {
+        const headSha = await api.diff.getHeadSha(saved.id)
+        await api.repo.updateSettings(saved.id, { baselineSha: headSha })
+        finalRepo = { ...saved, baselineSha: headSha }
+      } catch {
+        showToast('baselineSha 초기화 실패 — 레포 설정에서 직접 확인하세요', 'warning')
+      }
+
+      onAdd(finalRepo)
       resetForm()
       onClose()
     } catch {
