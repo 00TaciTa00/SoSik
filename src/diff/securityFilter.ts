@@ -8,6 +8,8 @@
  * 순서를 바꾸면 민감 정보가 AI API로 유출될 수 있습니다.
  */
 
+import { logger } from '../shared/logger'
+
 /**
  * 글로브 패턴 → 정규식 변환
  *
@@ -89,8 +91,7 @@ export function applySecurityFilter(rawDiff: string, patterns: string[]): string
     const filePath = match[1]!
     const excluded = isExcluded(filePath, patterns)
     if (excluded) {
-      // 제외된 파일은 로그로 기록 (main process에서만 동작)
-      process.stdout.write(`[security-filter] excluded: ${filePath}\n`)
+      logger.info('보안 필터 제외', { filePath })
     }
     return !excluded
   })

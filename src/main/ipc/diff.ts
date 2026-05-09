@@ -5,15 +5,7 @@
  *   diff:check         새 커밋 유무 확인 (빠름 — diff 미추출)
  *   diff:get-commits   커밋 목록 조회 (GitGraph 표시용)
  *   diff:extract       diff 추출 + 보안 필터 적용 → AI 입력 준비
- */
-
-/**
- * diff 관련 IPC 핸들러
- *
- * 채널 목록:
- *   diff:check         새 커밋 유무 확인 (빠름 — diff 미추출)
- *   diff:get-commits   커밋 목록 조회 (GitGraph 표시용)
- *   diff:extract       diff 추출 + 보안 필터 적용 → AI 입력 준비
+ *   diff:get-head-sha  현재 HEAD SHA 조회 (레포 등록 시 baselineSha 초기화용)
  */
 
 import { ipcMain } from 'electron'

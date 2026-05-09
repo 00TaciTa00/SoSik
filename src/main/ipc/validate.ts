@@ -69,7 +69,10 @@ export function validateRepo(repo: unknown): asserts repo is Repository {
   assertNonEmptyString(r.name, 'name')
   assertEnum(r.platform, 'platform', VALID_PLATFORMS)
   assertEnum(r.diffSource, 'diffSource', VALID_DIFF_SOURCES)
-  assertNonEmptyString(r.repoUrl, 'repoUrl')
+  // local-git 방식은 repoUrl이 없어도 됨 — api 방식만 필수
+  if (r.diffSource !== 'local-git') {
+    assertNonEmptyString(r.repoUrl, 'repoUrl')
+  }
   assertEnum(r.aiProvider, 'aiProvider', VALID_AI_PROVIDERS)
   assertEnum(r.summaryLanguage, 'summaryLanguage', VALID_SUMMARY_LANGUAGES)
   assertEnum(r.summaryStyle, 'summaryStyle', VALID_SUMMARY_STYLES)
