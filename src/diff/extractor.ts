@@ -9,20 +9,12 @@
  *     IPC 핸들러에서 직접 gitlab/github/localGit을 호출하지 마세요.
  */
 
-import type { Repository } from '../shared/types'
+import type { Repository, CommitInfo } from '../shared/types'
 import { applySecurityFilter } from './securityFilter'
 import { checkNewCommitsGitLab, getCommitListGitLab, getDiffGitLab, getHeadShaGitLab } from './gitlab'
 import { checkNewCommitsGitHub, getCommitListGitHub, getDiffGitHub, getHeadShaGitHub } from './github'
 import { countNewCommits, getCommitList, getDiff, getHeadSha as getLocalHeadSha } from './localGit'
 import { DiffError } from '../shared/error'
-
-/** diff:get-commits IPC 응답 형식 */
-export type CommitInfo = {
-  sha: string
-  message: string
-  author: string
-  date: string
-}
 
 /** diff:extract IPC 응답 형식 */
 export type DiffResult = {

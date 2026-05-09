@@ -9,7 +9,7 @@ import { PLATFORM_LABEL, DIFF_SOURCE_LABEL } from '../../../../shared/constants'
 import styles from './Dashboard.module.css'
 
 export function Dashboard() {
-  const { selectedRepo, releaseNotes, setReleaseNotes, updateRepo } = useApp()
+  const { selectedRepo, releaseNotes, setReleaseNotes, updateRepo, settings } = useApp()
   const { showToast } = useToast()
   const t = useTranslation()
   const [checking, setChecking] = useState(false)
@@ -69,7 +69,7 @@ export function Dashboard() {
     }
   }
 
-  const webhookUrl = `http://localhost:45678/webhook/${selectedRepo.id}`
+  const webhookUrl = `http://localhost:${settings.webhookPort}/webhook/${selectedRepo.id}`
 
   function copyWebhookUrl() {
     navigator.clipboard.writeText(webhookUrl)
@@ -97,10 +97,18 @@ export function Dashboard() {
       </div>
 
       <div className={styles.cards}>
-        <div className={styles.card}>
-          <span className={styles.cardLabel}>{t.dashboard.repoUrl}</span>
-          <span className={styles.cardValue}>{selectedRepo.repoUrl}</span>
-        </div>
+        {selectedRepo.repoUrl && (
+          <div className={styles.card}>
+            <span className={styles.cardLabel}>{t.dashboard.repoUrl}</span>
+            <span className={styles.cardValue}>{selectedRepo.repoUrl}</span>
+          </div>
+        )}
+        {selectedRepo.localPath && (
+          <div className={styles.card}>
+            <span className={styles.cardLabel}>{t.dashboard.localPath}</span>
+            <span className={styles.cardValue}>{selectedRepo.localPath}</span>
+          </div>
+        )}
 
         <div className={styles.card}>
           <span className={styles.cardLabel}>{t.dashboard.lastNote}</span>

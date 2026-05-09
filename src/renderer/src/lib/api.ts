@@ -2,7 +2,7 @@
  * renderer → main IPC 호출 래퍼
  *
  * 모든 채널은 preload의 ALLOWED_CHANNELS에 등록된 것만 호출할 수 있습니다.
- * diff, ai는 P1에서 실제 IPC 호출로 연결됩니다.
+ * 목록에 없는 채널을 호출하면 preload에서 즉시 reject됩니다.
  */
 
 import type { Repository, ReleaseNote, GlobalSettings, CommitInfo, SecurityExclusionRule } from '../../../shared/types'
