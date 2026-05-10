@@ -28,7 +28,7 @@ export function registerDiffHandlers(): void {
     logger.debug('IPC diff:get-head-sha', { repoId })
     const repo = getRepoById(repoId)
     if (!repo) throw new DiffError(`레포를 찾을 수 없습니다: ${repoId}`)
-    const token = getSecureKey(`repo:${repoId}:access_token`) ?? ''
+    const token = repo.diffSource === 'api' ? (getSecureKey(`repo:${repoId}:access_token`) ?? '') : ''
     return getHeadSha(repo, token)
   })
 
@@ -42,7 +42,7 @@ export function registerDiffHandlers(): void {
     logger.debug('IPC diff:check', { repoId })
     const repo = getRepoById(repoId)
     if (!repo) throw new DiffError(`레포를 찾을 수 없습니다: ${repoId}`)
-    const token = getSecureKey(`repo:${repoId}:access_token`) ?? ''
+    const token = repo.diffSource === 'api' ? (getSecureKey(`repo:${repoId}:access_token`) ?? '') : ''
     return checkNewCommits(repo, token)
   })
 
@@ -56,7 +56,7 @@ export function registerDiffHandlers(): void {
     logger.debug('IPC diff:get-commits', { repoId })
     const repo = getRepoById(repoId)
     if (!repo) throw new DiffError(`레포를 찾을 수 없습니다: ${repoId}`)
-    const token = getSecureKey(`repo:${repoId}:access_token`) ?? ''
+    const token = repo.diffSource === 'api' ? (getSecureKey(`repo:${repoId}:access_token`) ?? '') : ''
     return getCommits(repo, token)
   })
 
@@ -71,7 +71,7 @@ export function registerDiffHandlers(): void {
     logger.info('IPC diff:extract 시작', { repoId })
     const repo = getRepoById(repoId)
     if (!repo) throw new DiffError(`레포를 찾을 수 없습니다: ${repoId}`)
-    const token = getSecureKey(`repo:${repoId}:access_token`) ?? ''
+    const token = repo.diffSource === 'api' ? (getSecureKey(`repo:${repoId}:access_token`) ?? '') : ''
     // DB에서 보안 제외 패턴 로드 (레포별 독립 설정)
     const securityPatterns = getPatternsByRepo(repoId)
     logger.debug('보안 필터 패턴', { count: securityPatterns.length, patterns: securityPatterns })
