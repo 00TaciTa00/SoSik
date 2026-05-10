@@ -7,7 +7,6 @@ out/
 .env.local
 .env.*.local
 .claude/
-.claude-backups/
 .omc/
 CLAUDE.md
 CLAUDE.local.md
@@ -28,3 +27,6 @@ npm-debug.log*
 coverage/
 .DS_Store
 Thumbs.db
+AGENTS.md
+patches/
+forPlan/
