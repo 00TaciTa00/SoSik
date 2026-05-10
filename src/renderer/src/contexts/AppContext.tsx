@@ -35,11 +35,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // 앱 시작 시 DB에서 데이터 로드
   useEffect(() => {
-    Promise.all([api.repo.getAll(), api.settings.get()]).then(([loadedRepos, loadedSettings]) => {
-      setRepos(loadedRepos)
-      setSelectedRepoId(loadedRepos[0]?.id ?? null)
-      setSettings(loadedSettings)
-    })
+    Promise.all([api.repo.getAll(), api.settings.get()])
+      .then(([loadedRepos, loadedSettings]) => {
+        setRepos(loadedRepos)
+        setSelectedRepoId(loadedRepos[0]?.id ?? null)
+        setSettings(loadedSettings)
+      })
+      .catch((err) => {
+        // DB 초기화 실패 등 치명적 오류 — 콘솔에 남기고 앱은 빈 상태로 기동
+        console.error('[AppContext] 초기 데이터 로드 실패:', err)
+      })
   }, [])
 
   // 선택 레포 변경 시 해당 릴리즈 노트 로드
@@ -48,7 +53,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setReleaseNotes([])
       return
     }
-    api.releaseNote.getByRepo(selectedRepoId).then(setReleaseNotes)
+    api.releaseNote
+      .getByRepo(selectedRepoId)
+      .then(setReleaseNotes)
+      .catch(() => setReleaseNotes([]))
   }, [selectedRepoId])
 
   useEffect(() => {

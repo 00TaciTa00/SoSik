@@ -17,7 +17,6 @@ export function GlobalSettingsModal({ isOpen, onClose }: GlobalSettingsModalProp
 
   const [claudeKey, setClaudeKey] = useState('')
   const [openaiKey, setOpenaiKey] = useState('')
-  const [naverWorksKey, setNaverWorksKey] = useState('')
   const [theme, setTheme] = useState(settings.appTheme)
   const [language, setLanguage] = useState(settings.appLanguage)
   const [startupLaunch, setStartupLaunch] = useState(settings.startupLaunch)
@@ -41,8 +40,6 @@ export function GlobalSettingsModal({ isOpen, onClose }: GlobalSettingsModalProp
       const keyOps: Promise<void>[] = []
       if (claudeKey.trim()) keyOps.push(api.secure.setApiKey('claudeApiKey', claudeKey.trim()))
       if (openaiKey.trim()) keyOps.push(api.secure.setApiKey('openaiApiKey', openaiKey.trim()))
-      if (naverWorksKey.trim())
-        keyOps.push(api.secure.setApiKey('naverWorksApiKey', naverWorksKey.trim()))
       await Promise.all(keyOps)
 
       setSettings(patch)
@@ -78,21 +75,6 @@ export function GlobalSettingsModal({ isOpen, onClose }: GlobalSettingsModalProp
               value={openaiKey}
               onChange={(e) => setOpenaiKey(e.target.value)}
               placeholder="sk-..."
-              className={styles.input}
-              autoComplete="off"
-            />
-          </div>
-        </section>
-
-        <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Naver Works</h3>
-          <div className={styles.field}>
-            <label className={styles.label}>Naver Works API Key</label>
-            <input
-              type="password"
-              value={naverWorksKey}
-              onChange={(e) => setNaverWorksKey(e.target.value)}
-              placeholder="API Key 입력..."
               className={styles.input}
               autoComplete="off"
             />

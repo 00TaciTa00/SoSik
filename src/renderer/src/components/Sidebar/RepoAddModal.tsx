@@ -181,18 +181,20 @@ export function RepoAddModal({ isOpen, onClose, onAdd }: RepoAddModalProps) {
           </div>
         )}
 
-        <div className={styles.field}>
-          <label className={styles.label}>액세스 토큰</label>
-          <input
-            type="password"
-            value={accessToken}
-            onChange={(e) => setAccessToken(e.target.value)}
-            placeholder="glpat-xxxxxxxxxxxx"
-            className={styles.input}
-            autoComplete="off"
-          />
-          <p className={styles.hint}>암호화되어 안전하게 저장됩니다</p>
-        </div>
+        {diffSource === 'api' && (
+          <div className={styles.field}>
+            <label className={styles.label}>액세스 토큰</label>
+            <input
+              type="password"
+              value={accessToken}
+              onChange={(e) => setAccessToken(e.target.value)}
+              placeholder="glpat-xxxxxxxxxxxx"
+              className={styles.input}
+              autoComplete="off"
+            />
+            <p className={styles.hint}>암호화되어 안전하게 저장됩니다</p>
+          </div>
+        )}
 
         <div className={styles.actions}>
           <Button type="button" variant="ghost" onClick={handleClose} disabled={saving}>

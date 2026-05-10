@@ -69,6 +69,5 @@ export interface CommitInfo {
 export interface SecureStore {
   claudeApiKey?: string
   openaiApiKey?: string
-  naverWorksApiKey?: string
   webhookSecretToken?: string
 }

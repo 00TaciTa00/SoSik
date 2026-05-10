@@ -9,20 +9,12 @@
  *     IPC 핸들러에서 직접 gitlab/github/localGit을 호출하지 마세요.
  */
 
-import type { Repository } from '../shared/types'
+import type { Repository, CommitInfo } from '../shared/types'
 import { applySecurityFilter } from './securityFilter'
 import { checkNewCommitsGitLab, getCommitListGitLab, getDiffGitLab, getHeadShaGitLab } from './gitlab'
 import { checkNewCommitsGitHub, getCommitListGitHub, getDiffGitHub, getHeadShaGitHub } from './github'
 import { countNewCommits, getCommitList, getDiff, getHeadSha as getLocalHeadSha } from './localGit'
 import { DiffError } from '../shared/error'
-
-/** diff:get-commits IPC 응답 형식 */
-export type CommitInfo = {
-  sha: string
-  message: string
-  author: string
-  date: string
-}
 
 /** diff:extract IPC 응답 형식 */
 export type DiffResult = {
@@ -40,7 +32,7 @@ export type DiffResult = {
 export async function getHeadSha(repo: Repository, accessToken: string): Promise<string> {
   if (repo.diffSource === 'local-git') {
     if (!repo.localPath) throw new DiffError('로컬 git 경로(localPath)가 설정되지 않았습니다', repo.repoUrl)
-    return getLocalHeadSha(repo.localPath)
+    return await getLocalHeadSha(repo.localPath)
   }
   return repo.platform === 'gitlab'
     ? getHeadShaGitLab(repo.repoUrl, accessToken)
@@ -61,7 +53,7 @@ export async function checkNewCommits(
 
   if (repo.diffSource === 'local-git') {
     if (!repo.localPath) throw new DiffError('로컬 git 경로(localPath)가 설정되지 않았습니다', repo.repoUrl)
-    const count = countNewCommits(repo.localPath, repo.baselineSha)
+    const count = await countNewCommits(repo.localPath, repo.baselineSha)
     return { hasNew: count > 0, commitCount: count }
   }
 
@@ -82,7 +74,7 @@ export async function getCommits(
 ): Promise<CommitInfo[]> {
   if (repo.diffSource === 'local-git') {
     if (!repo.localPath) throw new DiffError('로컬 git 경로(localPath)가 설정되지 않았습니다', repo.repoUrl)
-    return getCommitList(repo.localPath, repo.baselineSha)
+    return await getCommitList(repo.localPath, repo.baselineSha)
   }
   return repo.platform === 'gitlab'
     ? getCommitListGitLab(repo.repoUrl, repo.baselineSha, accessToken)
@@ -112,9 +104,9 @@ export async function extractDiff(
 
   if (repo.diffSource === 'local-git') {
     if (!repo.localPath) throw new DiffError('로컬 git 경로(localPath)가 설정되지 않았습니다', repo.repoUrl)
-    rawDiff = getDiff(repo.localPath, repo.baselineSha)
+    rawDiff = await getDiff(repo.localPath, repo.baselineSha)
     fromSha = repo.baselineSha
-    toSha = getLocalHeadSha(repo.localPath)
+    toSha = await getLocalHeadSha(repo.localPath)
   } else if (repo.platform === 'gitlab') {
     const result = await getDiffGitLab(repo.repoUrl, repo.baselineSha, accessToken)
     rawDiff = result.diff

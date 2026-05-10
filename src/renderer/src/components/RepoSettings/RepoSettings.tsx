@@ -127,10 +127,12 @@ export function RepoSettings() {
             <span className={styles.fieldLabel}>Diff 소스</span>
             <span className={styles.fieldValue}>{DIFF_SOURCE_LABEL[selectedRepo.diffSource]}</span>
           </div>
-          <div className={styles.field}>
-            <span className={styles.fieldLabel}>저장소 URL</span>
-            <span className={styles.fieldValue}>{selectedRepo.repoUrl}</span>
-          </div>
+          {selectedRepo.repoUrl && (
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>저장소 URL</span>
+              <span className={styles.fieldValue}>{selectedRepo.repoUrl}</span>
+            </div>
+          )}
           {selectedRepo.localPath && (
             <div className={styles.field}>
               <span className={styles.fieldLabel}>로컬 경로</span>
